@@ -306,13 +306,13 @@ int main(int argc, const char **argv)
 {
   try {
     static constexpr auto USAGE =
-      R"(intro
+      R"(grandrounds
 
     Usage:
-          intro turn_based
-          intro loop_based
-          intro (-h | --help)
-          intro --version
+          grandrounds turn_based
+          grandrounds loop_based
+          grandrounds (-h | --help)
+          grandrounds --version
  Options:
           -h --help     Show this screen.
           --version     Show version.
