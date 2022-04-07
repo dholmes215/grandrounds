@@ -109,9 +109,35 @@ struct color {
     // TODO
 };
 
+// The terminal uses a coordinate system where the top-left character is (1,1),
+// the next character to the right is (2,1), the next character down is (1,2),
+// and so on.
+struct term_coords {
+    int x{0};
+    int y{0};
+};
+
+// ftxui::Canvas uses a coordinate system where each character in the terminal
+// is subdivided into a 2x8 grid of subpixels, so each character is two
+// subpixels wide and one subpixel high.  The canvas is indexed from (0,0),
+// unlike the terminal.
+struct canvas_coords {
+    int x{0};
+    int y{0};
+};
+
+// The nonogram board is drawn using squares that are two characters wide and
+// one character high, which on a canvas is 8x8 subpixels.  The board's top-left
+// square is (0,0) but the board is drawn at an offset from the top-left
+// terminal character, which can vary from puzzle to puzzle, so that offset
+// needs to be added or subtracted when translating between coordinate systems.
+struct board_coords {
+    int x{0};
+    int y{0};
+};
+
 struct nonogram_puzzle {
-    int width{};
-    int height{};
+    board_coords dimensions;
     std::vector<std::uint8_t> nonogram;
     std::vector<color> picture;
     puzzle_data data;
@@ -187,8 +213,8 @@ nonogram_puzzle load_puzzle(std::string_view name)
     // Convert the image data to "white = 0, black = 1"
 
     nonogram_puzzle out;
-    out.width = nonogram.width;
-    out.height = nonogram.height;
+    out.dimensions.x = nonogram.width;
+    out.dimensions.y = nonogram.height;
     out.nonogram =
         nonogram.rgba_pixel_data | rv::chunk(4) |
         rv::transform([](auto&& pixel) -> std::uint8_t {
@@ -197,13 +223,13 @@ nonogram_puzzle load_puzzle(std::string_view name)
         r::to<std::vector>;
     out.data = load_puzzle_data(json_path);
 
-    const auto cols{grid_cols(out.nonogram, out.width)};
+    const auto cols{grid_cols(out.nonogram, out.dimensions.x)};
     out.col_hints =
         cols |
         rv::transform([&](const auto& col) { return calculate_hints(col); }) |
         r::to<std::vector>;
 
-    const auto rows{grid_rows(out.nonogram, out.width)};
+    const auto rows{grid_rows(out.nonogram, out.dimensions.x)};
     out.row_hints =
         rows |
         rv::transform([&](const auto& row) { return calculate_hints(row); }) |
@@ -232,119 +258,6 @@ void draw_rect(ftxui::Canvas& canvas,
     }
 }
 
-// The terminal uses a coordinate system where the top-left character is (1,1),
-// the next character to the right is (2,1), the next character down is (1,2),
-// and so on.
-struct term_coords {
-    int x{0};
-    int y{0};
-};
-
-// ftxui::Canvas uses a coordinate system where each character in the terminal
-// is subdivided into a 2x8 grid of subpixels, so each character is two
-// subpixels wide and one subpixel high.  The canvas is indexed from (0,0),
-// unlike the terminal.
-struct canvas_coords {
-    int x{0};
-    int y{0};
-};
-
-// The nonogram board is drawn using squares that are two characters wide and
-// one character high, which on a canvas is 8x8 subpixels.  The board's top-left
-// square is (0,0) but the board is drawn at an offset from the top-left
-// terminal character, which can vary from puzzle to puzzle, so that offset
-// needs to be added or subtracted when translating between coordinate systems.
-struct board_coords {
-    int x{0};
-    int y{0};
-};
-
-ftxui::Canvas draw_board(const nonogram_game& game, board_coords selected)
-{
-    const auto& puzzle{*game.puzzle};
-    const auto& board{game.board};
-    const int width{game.puzzle->width};
-    const int height{game.puzzle->height};
-
-    const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
-        return static_cast<int>(vec.size());
-    }};
-    const term_coords board_offset{puzzle.row_hints_max * 3,
-                                   puzzle.col_hints_max};
-
-    const ftxui::Color black{0, 0, 0};
-    const ftxui::Color almost_black{32, 32, 32};
-    const ftxui::Color black_highlight{32, 32, 64};
-    const ftxui::Color white{255, 255, 255};
-    const ftxui::Color white_highlight{223, 223, 255};
-
-    ftxui::Canvas out{(width + board_offset.x) * 4,
-                      (height + board_offset.y) * 4};
-    for (const auto [x, y] :
-         rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
-        ftxui::Color color;
-        if (board[y * width + x]) {
-            if (selected.x == x || selected.y == y) {
-                color = black_highlight;
-            }
-            else {
-                color = almost_black;
-            }
-        }
-        else {
-            if (selected.x == x || selected.y == y) {
-                color = white_highlight;
-            }
-            else {
-                color = white;
-            }
-        }
-        draw_rect(out, 4 * x + 2 * board_offset.x, 4 * (y + board_offset.y), 4, 4,
-                  true,
-                  color);
-    }
-
-    for (int y{0}; y < height; y++) {
-        const auto& this_row_hints{puzzle.row_hints[y]};
-        const auto canvas_y{(board_offset.y + y) * 4};
-        for (const auto [i, str] :
-             this_row_hints | rv::reverse | rv::transform([](auto hint) {
-                 return fmt::format("{:4}", hint);
-             }) | rv::enumerate) {
-            const auto canvas_x{
-                static_cast<int>(board_offset.x - (3 * (i + 1)) - 1) *
-                                2};
-            const ftxui::Color fg_color{selected.y == y ? black : white};
-            const ftxui::Color bg_color{selected.y == y ? white_highlight
-                                                        : black};
-            out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
-                p.background_color = bg_color;
-                p.foreground_color = fg_color;
-            });
-        }
-    }
-
-    for (int x{0}; x < width; x++) {
-        const auto& this_col_hints{puzzle.col_hints[x]};
-        const auto canvas_x{(board_offset.x + x * 2) * 2};
-        for (auto [i, str] :
-             this_col_hints | rv::reverse | rv::transform([](auto hint) {
-                 return fmt::format("{:2}", hint);
-             }) | rv::enumerate) {
-            const auto canvas_y{static_cast<int>(board_offset.y - (i + 1)) * 4};
-            const ftxui::Color fg_color{selected.x == x ? black : white};
-            const ftxui::Color bg_color{selected.x == x ? white_highlight
-                                                        : black};
-            out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
-                p.background_color = bg_color;
-                p.foreground_color = fg_color;
-            });
-        }
-    }
-
-    return out;
-}
-
 ftxui::Canvas draw_photo(int width, int height)
 {
     ftxui::Canvas out{width, height};
@@ -354,7 +267,9 @@ ftxui::Canvas draw_photo(int width, int height)
 class nonogram_component : public ftxui::ComponentBase {
    public:
     explicit nonogram_component(std::shared_ptr<nonogram_game> game)
-        : game_{game}
+        : game_{game},
+          board_position_{game_->puzzle->row_hints_max * 3 + 1,
+                          game_->puzzle->col_hints_max + 1}
     {
     }
 
@@ -367,13 +282,13 @@ class nonogram_component : public ftxui::ComponentBase {
     bool OnEvent(ftxui::Event event) override
     {
         const auto& puzzle{*game_->puzzle};
-        const int width{puzzle.width};
-        const int height{puzzle.height};
+        const int width{puzzle.dimensions.x};
+        const int height{puzzle.dimensions.y};
         if (event.is_mouse()) {
             const int mouse_x = event.mouse().x;
             const int mouse_y = event.mouse().y;
-            selected_col_ = (mouse_x - puzzle.row_hints_max * 3) / 2;
-            selected_row_ = mouse_y - puzzle.col_hints_max;
+            selected_col_ = (mouse_x - board_position_.x) / 2;
+            selected_row_ = mouse_y - board_position_.y;
             bool in_range{selected_col_ >= 0 && selected_col_ < width &&
                           selected_row_ >= 0 && selected_row_ < height};
             if (in_range) {
@@ -396,12 +311,98 @@ class nonogram_component : public ftxui::ComponentBase {
         return false;
     }
 
-    // grid_coords
+    void Solve() { game_->board = game_->puzzle->nonogram; }
 
    private:
+    ftxui::Canvas draw_board(const nonogram_game& game,
+                             board_coords selected) const
+    {
+        const auto& puzzle{*game.puzzle};
+        const auto& board{game.board};
+        const int width{game.puzzle->dimensions.x};
+        const int height{game.puzzle->dimensions.y};
+
+        const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
+            return static_cast<int>(vec.size());
+        }};
+        const ftxui::Color black{0, 0, 0};
+        const ftxui::Color almost_black{32, 32, 32};
+        const ftxui::Color black_highlight{32, 32, 64};
+        const ftxui::Color white{255, 255, 255};
+        const ftxui::Color white_highlight{223, 223, 255};
+
+        ftxui::Canvas out{(width + board_position_.x) * 4,
+                          (height + board_position_.y) * 4};
+        for (const auto [x, y] :
+             rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
+            ftxui::Color color;
+            if (board[y * width + x]) {
+                if (selected.x == x || selected.y == y) {
+                    color = black_highlight;
+                }
+                else {
+                    color = almost_black;
+                }
+            }
+            else {
+                if (selected.x == x || selected.y == y) {
+                    color = white_highlight;
+                }
+                else {
+                    color = white;
+                }
+            }
+            draw_rect(out, 4 * x + 2 * board_position_.x,
+                      4 * (y + board_position_.y), 4, 4, true, color);
+        }
+
+        for (int y{0}; y < height; y++) {
+            const auto& this_row_hints{puzzle.row_hints[y]};
+            const auto canvas_y{(board_position_.y + y) * 4};
+            for (const auto [i, str] :
+                 this_row_hints | rv::reverse | rv::transform([](auto hint) {
+                     return fmt::format("{:4}", hint);
+                 }) | rv::enumerate) {
+                const auto canvas_x{
+                    static_cast<int>(board_position_.x - (3 * (i + 1)) - 1) *
+                    2};
+                const ftxui::Color fg_color{selected.y == y ? black : white};
+                const ftxui::Color bg_color{selected.y == y ? white_highlight
+                                                            : black};
+                out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
+                    p.background_color = bg_color;
+                    p.foreground_color = fg_color;
+                });
+            }
+        }
+
+        for (int x{0}; x < width; x++) {
+            const auto& this_col_hints{puzzle.col_hints[x]};
+            const auto canvas_x{(board_position_.x + x * 2) * 2};
+            for (auto [i, str] :
+                 this_col_hints | rv::reverse | rv::transform([](auto hint) {
+                     return fmt::format("{:2}", hint);
+                 }) | rv::enumerate) {
+                const auto canvas_y{
+                    static_cast<int>(board_position_.y - (i + 1)) * 4};
+                const ftxui::Color fg_color{selected.x == x ? black : white};
+                const ftxui::Color bg_color{selected.x == x ? white_highlight
+                                                            : black};
+                out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
+                    p.background_color = bg_color;
+                    p.foreground_color = fg_color;
+                });
+            }
+        }
+
+        return out;
+    }
+
     std::shared_ptr<nonogram_game> game_;
     int selected_col_{-1};
     int selected_row_{-1};
+    term_coords board_position_;  // Terminal coordinates where the top-left
+                                  // character of the board will be drawn
 };
 
 void play_puzzle(std::string_view name)
@@ -416,21 +417,26 @@ void play_puzzle(std::string_view name)
     game->puzzle = std::make_shared<nonogram_puzzle>(load_puzzle(name));
     game->board.resize(game->puzzle->nonogram.size());
 
-    std::string quit_text{"Quit"};
+    const std::string solve_text{"Solve"};
+    const std::string quit_text{"Quit"};
 
     auto screen{ftxui::ScreenInteractive::TerminalOutput()};
+
+    auto puzzle_component{std::make_shared<nonogram_component>(game)};
+    auto solve_button{
+        ftxui::Button(&solve_text, [&] { puzzle_component->Solve(); })};
     auto quit_button{ftxui::Button(&quit_text, screen.ExitLoopClosure())};
+    auto right_container{
+        ftxui::Container::Vertical({solve_button, quit_button})};
 
     std::vector<ftxui::Component> all_components;
-    auto puzzle_component{std::make_shared<nonogram_component>(game)};
     all_components.push_back(puzzle_component);
-    // all_components.push_back(quit_button);
 
-    auto right_panel{ftxui::Renderer(quit_button, [&] {
+    auto right_panel{ftxui::Renderer(right_container, [&] {
         return ftxui::vbox(
             {{ftxui::text(fmt::format("Mouse: {},{}", mouse_x, mouse_y)),
               ftxui::text(fmt::format("Frame: {}", frame++)),
-              ftxui::text("This is the quit button:"), ftxui::separator(),
+              solve_button->Render(),
               quit_button->Render()}});
     })};
     all_components.push_back(right_panel);
