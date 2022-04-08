@@ -67,7 +67,7 @@ std::string slurp(std::istream& stream)
 
 // Read an entire file into a std::string.  Will throw if any failure occurs.
 // TODO: test
-std::string slurp(std::filesystem::path path)
+std::string slurp(const std::filesystem::path& path)
 {
     std::ifstream stream{path};
     if (!stream) {
@@ -137,6 +137,7 @@ struct board_coords {
 };
 
 struct nonogram_puzzle {
+    // FIXME: constructor
     board_coords dimensions;
     std::vector<std::uint8_t> nonogram;
     std::vector<color> picture;
@@ -152,7 +153,7 @@ struct nonogram_game {
     std::vector<uint8_t> board;
 };
 
-puzzle_data load_puzzle_data(std::filesystem::path json_path)
+puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
 {
     const auto json_text{slurp(json_path)};
     const auto parsed_json{nlohmann::json::parse(json_text)};
@@ -168,12 +169,12 @@ puzzle_data load_puzzle_data(std::filesystem::path json_path)
     return out;
 }
 
-loaded_image load_image(std::filesystem::path nonogram_png_path)
+loaded_image load_image(const std::filesystem::path& nonogram_png_path)
 {
     loaded_image out;
     const auto error{lodepng::decode(out.rgba_pixel_data, out.width, out.height,
                                      nonogram_png_path.string())};
-    if (error) {
+    if (error != 0) {
         throw file_error{fmt::format("Could not load {}: {} {}",
                                      nonogram_png_path.string(), error,
                                      lodepng_error_text(error))};
@@ -213,6 +214,7 @@ nonogram_puzzle load_puzzle(std::string_view name)
     // Convert the image data to "white = 0, black = 1"
 
     nonogram_puzzle out;
+    // FIXME: use gsl::narrow
     out.dimensions.x = nonogram.width;
     out.dimensions.y = nonogram.height;
     out.nonogram =
@@ -258,16 +260,10 @@ void draw_rect(ftxui::Canvas& canvas,
     }
 }
 
-ftxui::Canvas draw_photo(int width, int height)
-{
-    ftxui::Canvas out{width, height};
-    return out;
-}
-
 class nonogram_component : public ftxui::ComponentBase {
    public:
     explicit nonogram_component(std::shared_ptr<nonogram_game> game)
-        : game_{game},
+        : game_{std::move(game)},
           board_position_{game_->puzzle->row_hints_max * 3 + 1,
                           game_->puzzle->col_hints_max + 1}
     {
@@ -293,11 +289,13 @@ class nonogram_component : public ftxui::ComponentBase {
                           selected_row_ >= 0 && selected_row_ < height};
             if (in_range) {
                 if (event.mouse().motion == ftxui::Mouse::Pressed) {
+                    const auto board_idx{static_cast<std::size_t>(
+                        selected_row_ * width + selected_col_)};
                     if (event.mouse().button == ftxui::Mouse::Left) {
-                        game_->board[selected_row_ * width + selected_col_] = 1;
+                        game_->board[board_idx] = 1;
                     }
                     if (event.mouse().button == ftxui::Mouse::Right) {
-                        game_->board[selected_row_ * width + selected_col_] = 0;
+                        game_->board[board_idx] = 0;
                     }
                     // TODO: Replace uint8 with enum and support middle-click
                 }
@@ -314,9 +312,10 @@ class nonogram_component : public ftxui::ComponentBase {
     void Solve() { game_->board = game_->puzzle->nonogram; }
 
    private:
-    ftxui::Canvas draw_board(const nonogram_game& game,
+    [[nodiscard]] ftxui::Canvas draw_board(const nonogram_game& game,
                              board_coords selected) const
     {
+        // FIXME: reduce complexity
         const auto& puzzle{*game.puzzle};
         const auto& board{game.board};
         const int width{game.puzzle->dimensions.x};
@@ -436,8 +435,7 @@ void play_puzzle(std::string_view name)
         return ftxui::vbox(
             {{ftxui::text(fmt::format("Mouse: {},{}", mouse_x, mouse_y)),
               ftxui::text(fmt::format("Frame: {}", frame++)),
-              solve_button->Render(),
-              quit_button->Render()}});
+              solve_button->Render(), quit_button->Render()}});
     })};
     all_components.push_back(right_panel);
 
