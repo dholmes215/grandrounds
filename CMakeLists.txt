@@ -28,8 +28,13 @@ FetchContent_Declare(
         GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
         GIT_TAG "d800a032132512a54c291ce55a2a43e0460591c7"
 )
+FetchContent_Declare(
+        ms-gsl
+        GIT_REPOSITORY "https://github.com/microsoft/GSL"
+        GIT_TAG "a3534567187d2edc428efd3f13466ff75fe5805c"
+)
 
-FetchContent_MakeAvailable(Range-v3)
+FetchContent_MakeAvailable(Range-v3 ms-gsl)
 
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
