@@ -292,13 +292,15 @@ class nonogram_component : public ftxui::ComponentBase {
 
    private:
     // These are functions instead of static constants because somewhat
-    // surprisingly, the ftxui::Color constructor does different things at
+    // surprisingly, the ftxui::Color constructor makes different colors at
     // runtime based on environment variables, and can throw exceptions.
-    [[nodiscard]] static ftxui::Color black() { return {0, 0, 0}; }
-    [[nodiscard]] static ftxui::Color almost_black() { return {32, 32, 32}; }
-    [[nodiscard]] static ftxui::Color black_select() { return {32, 32, 64}; }
-    [[nodiscard]] static ftxui::Color white() { return {255, 255, 255}; }
-    [[nodiscard]] static ftxui::Color white_select() { return {223, 223, 255}; }
+    // clang-format off
+    [[nodiscard]] static ftxui::Color black() { return {0, 0, 0}; } // NOLINT magic numbers - these are for all intents and purposes defining constants.
+    [[nodiscard]] static ftxui::Color almost_black() { return {32, 32, 32}; } // NOLINT magic numbers
+    [[nodiscard]] static ftxui::Color black_select() { return {32, 32, 64}; } // NOLINT magic numbers
+    [[nodiscard]] static ftxui::Color white() { return {255, 255, 255}; } // NOLINT magic numbers
+    [[nodiscard]] static ftxui::Color white_select() { return {223, 223, 255}; } // NOLINT magic numbers
+    // clang-format on
 
     static void draw_rect(ftxui::Canvas& canvas,
                           int x,
