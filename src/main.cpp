@@ -310,6 +310,12 @@ class nonogram_component : public ftxui::ComponentBase {
     void Solve() { game_->board = game_->puzzle->nonogram; }
 
    private:
+    const ftxui::Color black{0, 0, 0};
+    const ftxui::Color almost_black{32, 32, 32};
+    const ftxui::Color black_highlight{32, 32, 64};
+    const ftxui::Color white{255, 255, 255};
+    const ftxui::Color white_highlight{223, 223, 255};
+
     [[nodiscard]] ftxui::Canvas draw_board(const nonogram_game& game,
                                            board_coords selected) const
     {
@@ -319,14 +325,10 @@ class nonogram_component : public ftxui::ComponentBase {
         const int width{game.puzzle->dimensions.x};
         const int height{game.puzzle->dimensions.y};
 
-        const ftxui::Color black{0, 0, 0};
-        const ftxui::Color almost_black{32, 32, 32};
-        const ftxui::Color black_highlight{32, 32, 64};
-        const ftxui::Color white{255, 255, 255};
-        const ftxui::Color white_highlight{223, 223, 255};
-
         ftxui::Canvas out{(width + board_position_.x) * 4,
                           (height + board_position_.y) * 4};
+
+        // Draw board
         for (const auto [x, y] :
              rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
             ftxui::Color color;
@@ -350,6 +352,17 @@ class nonogram_component : public ftxui::ComponentBase {
                       4 * (y + board_position_.y), 4, 4, true, color);
         }
 
+        const std::function default_stylizer{[=](ftxui::Pixel& p) {
+            p.background_color = black;
+            p.foreground_color = white;
+        }};
+
+        const std::function highlight_stylizer{[=](ftxui::Pixel& p) {
+            p.background_color = white_highlight;
+            p.foreground_color = black;
+        }};
+
+        // Draw row hints
         for (int y{0}; y < height; y++) {
             const auto& this_row_hints{
                 puzzle.row_hints[gsl::narrow<std::size_t>(y)]};
@@ -361,16 +374,13 @@ class nonogram_component : public ftxui::ComponentBase {
                 const auto canvas_x{
                     (board_position_.x - (3 * (gsl::narrow<int>(i) + 1)) - 1) *
                     2};
-                const ftxui::Color fg_color{selected.y == y ? black : white};
-                const ftxui::Color bg_color{selected.y == y ? white_highlight
-                                                            : black};
-                out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
-                    p.background_color = bg_color;
-                    p.foreground_color = fg_color;
-                });
+                const auto& stylizer{selected.y == y ? highlight_stylizer
+                                                     : default_stylizer};
+                out.DrawText(canvas_x, canvas_y, str, stylizer);
             }
         }
 
+        // Draw column hints
         for (int x{0}; x < width; x++) {
             const auto& this_col_hints{
                 puzzle.col_hints[gsl::narrow<std::size_t>(x)]};
@@ -381,13 +391,9 @@ class nonogram_component : public ftxui::ComponentBase {
                  }) | rv::enumerate) {
                 const auto canvas_y{
                     (board_position_.y - (gsl::narrow<int>(i) + 1)) * 4};
-                const ftxui::Color fg_color{selected.x == x ? black : white};
-                const ftxui::Color bg_color{selected.x == x ? white_highlight
-                                                            : black};
-                out.DrawText(canvas_x, canvas_y, str, [=](ftxui::Pixel& p) {
-                    p.background_color = bg_color;
-                    p.foreground_color = fg_color;
-                });
+                const auto& stylizer{selected.x == x ? highlight_stylizer
+                                                     : default_stylizer};
+                out.DrawText(canvas_x, canvas_y, str, stylizer);
             }
         }
 
