@@ -8,7 +8,16 @@
 #ifndef RANGE_HPP
 #define RANGE_HPP
 
+// Range-v3 has some headers that generate warnings in MSVC.
+// TODO: Document in more detail
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4242)
+#endif
 #include <range/v3/all.hpp>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif 
 
 namespace grandrounds {
 

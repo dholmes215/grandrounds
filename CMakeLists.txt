@@ -23,7 +23,13 @@ if(NOT ftxui_POPULATED)
   add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+FetchContent_Declare(
+        Range-v3
+        GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
+        GIT_TAG "d800a032132512a54c291ce55a2a43e0460591c7"
+)
 
+FetchContent_MakeAvailable(Range-v3)
 
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)

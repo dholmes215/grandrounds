@@ -4,7 +4,7 @@ find_package(docopt CONFIG)
 find_package(Microsoft.GSL)
 find_package(nlohmann_json)
 find_package(lodepng REQUIRED)
-find_package(range-v3 REQUIRED)
+#find_package(range-v3 REQUIRED) # Disable when using FetchContent instead of Conan
 
 add_executable(grandrounds main.cpp "grid.hpp" "range.hpp" "nonogram_component.hpp" "nonogram.hpp" "nonogram.cpp" "nonogram_component.cpp")
 target_link_libraries(
