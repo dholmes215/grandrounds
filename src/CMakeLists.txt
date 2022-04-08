@@ -1,6 +1,7 @@
 find_package(fmt CONFIG)
 find_package(spdlog CONFIG)
 find_package(docopt CONFIG)
+find_package(Microsoft.GSL)
 find_package(nlohmann_json)
 find_package(lodepng REQUIRED)
 find_package(range-v3 REQUIRED)
@@ -13,6 +14,7 @@ target_link_libraries(
           docopt::docopt
           fmt::fmt
           lodepng::lodepng
+          Microsoft.GSL::GSL
           nlohmann_json::nlohmann_json
           range-v3::range-v3
           spdlog::spdlog)
