@@ -291,11 +291,11 @@ class nonogram_component : public ftxui::ComponentBase {
     void Solve() { game_->board = game_->puzzle->nonogram; }
 
    private:
-    const ftxui::Color black{0, 0, 0};
-    const ftxui::Color almost_black{32, 32, 32};
-    const ftxui::Color black_highlight{32, 32, 64};
-    const ftxui::Color white{255, 255, 255};
-    const ftxui::Color white_highlight{223, 223, 255};
+    static inline const ftxui::Color black{0, 0, 0};
+    static inline const ftxui::Color almost_black{32, 32, 32};
+    static inline const ftxui::Color black_highlight{32, 32, 64};
+    static inline const ftxui::Color white{255, 255, 255};
+    static inline const ftxui::Color white_highlight{223, 223, 255};
 
     static void draw_rect(ftxui::Canvas& canvas,
                    int x,
