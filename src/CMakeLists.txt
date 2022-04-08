@@ -10,20 +10,20 @@ add_executable(grandrounds main.cpp "grid.hpp" "range.hpp")
 target_link_libraries(
   grandrounds
   PRIVATE project_options
-          project_warnings
-          docopt::docopt
-          fmt::fmt
-          lodepng::lodepng
-          Microsoft.GSL::GSL
-          nlohmann_json::nlohmann_json
-          range-v3::range-v3
-          spdlog::spdlog)
+  project_warnings
+  docopt::docopt
+  fmt::fmt
+  lodepng::lodepng
+  Microsoft.GSL::GSL
+  nlohmann_json::nlohmann_json
+  spdlog::spdlog)
 
 target_link_system_libraries(
   grandrounds
   PRIVATE
   ftxui::screen
   ftxui::dom
-  ftxui::component)
+  ftxui::component
+  range-v3::range-v3)
 
 target_include_directories(grandrounds PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
