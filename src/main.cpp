@@ -297,13 +297,13 @@ class nonogram_component : public ftxui::ComponentBase {
     const ftxui::Color white{255, 255, 255};
     const ftxui::Color white_highlight{223, 223, 255};
 
-    void draw_rect(ftxui::Canvas& canvas,
+    static void draw_rect(ftxui::Canvas& canvas,
                    int x,
                    int y,
                    int width,
                    int height,
                    bool value,
-                   ftxui::Color color) const
+                   ftxui::Color color)
     {
         for (auto [x_, y_] : rv::cartesian_product(rv::ints(x, x + width),
                                                    rv::ints(y, y + height))) {
