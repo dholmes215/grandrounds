@@ -26,6 +26,8 @@ namespace {
 [[nodiscard]] ftxui::Color black_select() { return {32, 32, 64}; } // NOLINT magic numbers
 [[nodiscard]] ftxui::Color white() { return {255, 255, 255}; } // NOLINT magic numbers
 [[nodiscard]] ftxui::Color white_select() { return {223, 223, 255}; } // NOLINT magic numbers
+[[nodiscard]] ftxui::Color gray() { return {128, 128, 128}; } // NOLINT magic numbers
+[[nodiscard]] ftxui::Color gray_select() { return {128, 128, 160}; } // NOLINT magic numbers
 // clang-format on
 
 }  // namespace
@@ -59,12 +61,14 @@ bool nonogram_component::OnEvent(ftxui::Event event)
                 const auto board_idx{static_cast<std::size_t>(
                     selected_.y * width + selected_.x)};
                 if (event.mouse().button == ftxui::Mouse::Left) {
-                    game_->board[board_idx] = 1;
+                    game_->board[board_idx] = board_cell::filled;
                 }
-                if (event.mouse().button == ftxui::Mouse::Right) {
-                    game_->board[board_idx] = 0;
+                else if (event.mouse().button == ftxui::Mouse::Right) {
+                    game_->board[board_idx] = board_cell::clear;
                 }
-                // TODO: Replace uint8 with enum and support middle-click
+                else if (event.mouse().button == ftxui::Mouse::Middle) {
+                    game_->board[board_idx] = board_cell::marked;
+                }
             }
         }
         else {
@@ -99,7 +103,9 @@ void nonogram_component::draw_rect(ftxui::Canvas& canvas,
 {
     const auto& board{game_->board};
     const int width{game_->puzzle->dimensions.x};
-    if (board[gsl::narrow<std::size_t>(square.y * width + square.x)] != 0) {
+    const auto cell{
+        board[gsl::narrow<std::size_t>(square.y * width + square.x)]};
+    if (cell == board_cell::filled) {
         if (selected_.x == square.x || selected_.y == square.y) {
             return black_select();
         }
@@ -107,13 +113,22 @@ void nonogram_component::draw_rect(ftxui::Canvas& canvas,
             return almost_black();
         }
     }
-    else {
+    else if (cell == board_cell::clear) {
         if (selected_.x == square.x || selected_.y == square.y) {
             return white_select();
         }
         else {
             return white();
         }
+    }
+    else {
+        // marked
+		if (selected_.x == square.x || selected_.y == square.y) {
+			return gray_select();
+		}
+		else {
+			return gray();
+		}
     }
 }
 

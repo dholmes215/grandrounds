@@ -5,13 +5,13 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "grid.hpp"
 #include "nonogram.hpp"
+#include "grid.hpp"
 #include "range.hpp"
 
 #include <fmt/format.h>
-#include <gsl/narrow>
 #include <lodepng.h>
+#include <gsl/narrow>
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
@@ -117,11 +117,11 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
     const auto end{row_or_column.end()};
     std::vector<std::uint8_t> out;
     while (iter != end) {
-        while (iter != end && *iter == 0) {
+        while (iter != end && *iter == board_cell::clear) {
             ++iter;
         }
         std::uint8_t count{0};
-        while (iter != end && *iter == 1) {
+        while (iter != end && *iter == board_cell::filled) {
             ++count;
             ++iter;
         }
@@ -143,12 +143,15 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
     auto loaded_image{load_image(nonogram_path)};
 
-    // Convert the image data to "white = 0, black = 1"
     dimensions.x = gsl::narrow<int>(loaded_image.width);
     dimensions.y = gsl::narrow<int>(loaded_image.height);
+    // Split image data into four-byte (RGBA) chunks and convert those to board
+    // cells
     nonogram = loaded_image.rgba_pixel_data | rv::chunk(4) |
-               rv::transform([](auto&& pixel) -> std::uint8_t {
-                   return (pixel[0] == 0) && (pixel[1] == 0) && (pixel[2] == 0);
+               rv::transform([](auto&& pixel) {
+                   const bool filled{(pixel[0] == 0) && (pixel[1] == 0) &&
+                                     (pixel[2] == 0)};
+                   return filled ? board_cell::filled : board_cell::clear;
                }) |
                r::to<std::vector>;
     data = load_puzzle_data(json_path);

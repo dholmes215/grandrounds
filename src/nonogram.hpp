@@ -28,6 +28,8 @@ struct color {
     // TODO
 };
 
+enum class board_cell : std::uint8_t { clear, filled, marked };
+
 // The terminal uses a coordinate system where the top-left character is (1,1),
 // the next character to the right is (2,1), the next character down is (1,2),
 // and so on.
@@ -59,7 +61,7 @@ struct nonogram_puzzle {
     explicit nonogram_puzzle(std::string_view name);
 
     board_coords dimensions;
-    std::vector<std::uint8_t> nonogram;
+    std::vector<board_cell> nonogram;
     std::vector<color> picture;
     puzzle_data data;
     std::vector<std::vector<std::uint8_t>> row_hints;
@@ -70,7 +72,7 @@ struct nonogram_puzzle {
 
 struct nonogram_game {
     std::shared_ptr<nonogram_puzzle> puzzle;
-    std::vector<uint8_t> board;
+    std::vector<board_cell> board;
 };
 
 }  // namespace grandrounds
