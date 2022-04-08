@@ -269,8 +269,7 @@ class nonogram_component : public ftxui::ComponentBase {
 
     ftxui::Element Render() override
     {
-        return ftxui::canvas(
-            draw_board(*game_, {selected_col_, selected_row_}));
+        return ftxui::canvas(draw_board());
     }
 
     bool OnEvent(ftxui::Event event) override
@@ -281,14 +280,14 @@ class nonogram_component : public ftxui::ComponentBase {
         if (event.is_mouse()) {
             const int mouse_x = event.mouse().x;
             const int mouse_y = event.mouse().y;
-            selected_col_ = (mouse_x - board_position_.x) / 2;
-            selected_row_ = mouse_y - board_position_.y;
-            bool in_range{selected_col_ >= 0 && selected_col_ < width &&
-                          selected_row_ >= 0 && selected_row_ < height};
+            selected_ = {(mouse_x - board_position_.x) / 2,
+                         mouse_y - board_position_.y};
+            bool in_range{selected_.x >= 0 && selected_.x < width &&
+                          selected_.y >= 0 && selected_.y < height};
             if (in_range) {
                 if (event.mouse().motion == ftxui::Mouse::Pressed) {
                     const auto board_idx{static_cast<std::size_t>(
-                        selected_row_ * width + selected_col_)};
+                        selected_.y * width + selected_.x)};
                     if (event.mouse().button == ftxui::Mouse::Left) {
                         game_->board[board_idx] = 1;
                     }
@@ -299,8 +298,7 @@ class nonogram_component : public ftxui::ComponentBase {
                 }
             }
             else {
-                selected_col_ = -1;
-                selected_row_ = -1;
+                selected_ = {-1, -1};
             }
         }
 
@@ -316,14 +314,13 @@ class nonogram_component : public ftxui::ComponentBase {
     const ftxui::Color white{255, 255, 255};
     const ftxui::Color white_highlight{223, 223, 255};
 
-    [[nodiscard]] ftxui::Canvas draw_board(const nonogram_game& game,
-                                           board_coords selected) const
+    [[nodiscard]] ftxui::Canvas draw_board() const
     {
         // FIXME: reduce complexity
-        const auto& puzzle{*game.puzzle};
-        const auto& board{game.board};
-        const int width{game.puzzle->dimensions.x};
-        const int height{game.puzzle->dimensions.y};
+        const auto& puzzle{*game_->puzzle};
+        const auto& board{game_->board};
+        const int width{game_->puzzle->dimensions.x};
+        const int height{game_->puzzle->dimensions.y};
 
         ftxui::Canvas out{(width + board_position_.x) * 4,
                           (height + board_position_.y) * 4};
@@ -332,8 +329,8 @@ class nonogram_component : public ftxui::ComponentBase {
         for (const auto [x, y] :
              rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
             ftxui::Color color;
-            if (board[gsl::narrow<std::size_t>(y * width + x)]) {
-                if (selected.x == x || selected.y == y) {
+            if (board[gsl::narrow<std::size_t>(y * width + x)] != 0) {
+                if (selected_.x == x || selected_.y == y) {
                     color = black_highlight;
                 }
                 else {
@@ -341,7 +338,7 @@ class nonogram_component : public ftxui::ComponentBase {
                 }
             }
             else {
-                if (selected.x == x || selected.y == y) {
+                if (selected_.x == x || selected_.y == y) {
                     color = white_highlight;
                 }
                 else {
@@ -374,8 +371,8 @@ class nonogram_component : public ftxui::ComponentBase {
                 const auto canvas_x{
                     (board_position_.x - (3 * (gsl::narrow<int>(i) + 1)) - 1) *
                     2};
-                const auto& stylizer{selected.y == y ? highlight_stylizer
-                                                     : default_stylizer};
+                const auto& stylizer{selected_.y == y ? highlight_stylizer
+                                                      : default_stylizer};
                 out.DrawText(canvas_x, canvas_y, str, stylizer);
             }
         }
@@ -391,8 +388,8 @@ class nonogram_component : public ftxui::ComponentBase {
                  }) | rv::enumerate) {
                 const auto canvas_y{
                     (board_position_.y - (gsl::narrow<int>(i) + 1)) * 4};
-                const auto& stylizer{selected.x == x ? highlight_stylizer
-                                                     : default_stylizer};
+                const auto& stylizer{selected_.x == x ? highlight_stylizer
+                                                      : default_stylizer};
                 out.DrawText(canvas_x, canvas_y, str, stylizer);
             }
         }
@@ -400,9 +397,8 @@ class nonogram_component : public ftxui::ComponentBase {
         return out;
     }
 
-    std::shared_ptr<nonogram_game> game_;
-    int selected_col_{-1};
-    int selected_row_{-1};
+    std::shared_ptr<nonogram_game> game_; // State of the game in progress
+    board_coords selected_{-1, -1}; // Currently-selected square on the board
     term_coords board_position_;  // Terminal coordinates where the top-left
                                   // character of the board will be drawn
 };
