@@ -8,6 +8,16 @@
 #include "grid.hpp"
 #include "range.hpp"
 
+#include <gsl/narrow>
+
+#include <docopt/docopt.h>
+#include <lodepng.h>
+#include <spdlog/spdlog.h>
+#include <ftxui/component/captured_mouse.hpp>      // for ftxui
+#include <ftxui/component/component.hpp>           // for Slider
+#include <ftxui/component/screen_interactive.hpp>  // for ScreenInteractive
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -18,15 +28,6 @@
 #include <random>
 #include <string_view>
 #include <vector>
-
-#include <lodepng.h>
-
-#include <docopt/docopt.h>
-#include <spdlog/spdlog.h>
-#include <ftxui/component/captured_mouse.hpp>      // for ftxui
-#include <ftxui/component/component.hpp>           // for Slider
-#include <ftxui/component/screen_interactive.hpp>  // for ScreenInteractive
-#include <nlohmann/json.hpp>
 
 // This file will be generated automatically when you run the CMake
 // configuration step. It creates a namespace called `grandrounds`. You can
@@ -138,14 +139,16 @@ struct board_coords {
 
 struct nonogram_puzzle {
     // FIXME: constructor
+    explicit nonogram_puzzle(std::string_view name);
+
     board_coords dimensions;
     std::vector<std::uint8_t> nonogram;
     std::vector<color> picture;
     puzzle_data data;
     std::vector<std::vector<std::uint8_t>> row_hints;
     std::vector<std::vector<std::uint8_t>> col_hints;
-    int row_hints_max;
-    int col_hints_max;
+    int row_hints_max{0};
+    int col_hints_max{0};
 };
 
 struct nonogram_game {
@@ -205,34 +208,31 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
     return out;
 }
 
-nonogram_puzzle load_puzzle(std::string_view name)
+nonogram_puzzle::nonogram_puzzle(std::string_view name)
 {
     const auto puzzle_dir{find_puzzles_dir()};
     const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
     const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
-    auto nonogram{load_image(nonogram_path)};
+    auto loaded_image{load_image(nonogram_path)};
+
     // Convert the image data to "white = 0, black = 1"
+    dimensions.x = gsl::narrow<int>(loaded_image.width);
+    dimensions.y = gsl::narrow<int>(loaded_image.height);
+    nonogram = loaded_image.rgba_pixel_data | rv::chunk(4) |
+               rv::transform([](auto&& pixel) -> std::uint8_t {
+                   return (pixel[0] == 0) && (pixel[1] == 0) && (pixel[2] == 0);
+               }) |
+               r::to<std::vector>;
+    data = load_puzzle_data(json_path);
 
-    nonogram_puzzle out;
-    // FIXME: use gsl::narrow
-    out.dimensions.x = nonogram.width;
-    out.dimensions.y = nonogram.height;
-    out.nonogram =
-        nonogram.rgba_pixel_data | rv::chunk(4) |
-        rv::transform([](auto&& pixel) -> std::uint8_t {
-            return (pixel[0] == 0) && (pixel[1] == 0) && (pixel[2] == 0);
-        }) |
-        r::to<std::vector>;
-    out.data = load_puzzle_data(json_path);
-
-    const auto cols{grid_cols(out.nonogram, out.dimensions.x)};
-    out.col_hints =
+    const auto cols{grid_cols(nonogram, dimensions.x)};
+    col_hints =
         cols |
         rv::transform([&](const auto& col) { return calculate_hints(col); }) |
         r::to<std::vector>;
 
-    const auto rows{grid_rows(out.nonogram, out.dimensions.x)};
-    out.row_hints =
+    const auto rows{grid_rows(nonogram, dimensions.x)};
+    row_hints =
         rows |
         rv::transform([&](const auto& row) { return calculate_hints(row); }) |
         r::to<std::vector>;
@@ -240,10 +240,8 @@ nonogram_puzzle load_puzzle(std::string_view name)
     const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
         return static_cast<int>(vec.size());
     }};
-    out.row_hints_max = r::max(out.row_hints | rv::transform(vec_size));
-    out.col_hints_max = r::max(out.col_hints | rv::transform(vec_size));
-
-    return out;
+    row_hints_max = r::max(row_hints | rv::transform(vec_size));
+    col_hints_max = r::max(col_hints | rv::transform(vec_size));
 }
 
 void draw_rect(ftxui::Canvas& canvas,
@@ -313,7 +311,7 @@ class nonogram_component : public ftxui::ComponentBase {
 
    private:
     [[nodiscard]] ftxui::Canvas draw_board(const nonogram_game& game,
-                             board_coords selected) const
+                                           board_coords selected) const
     {
         // FIXME: reduce complexity
         const auto& puzzle{*game.puzzle};
@@ -335,7 +333,7 @@ class nonogram_component : public ftxui::ComponentBase {
         for (const auto [x, y] :
              rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
             ftxui::Color color;
-            if (board[y * width + x]) {
+            if (board[gsl::narrow<std::size_t>(y * width + x)]) {
                 if (selected.x == x || selected.y == y) {
                     color = black_highlight;
                 }
@@ -363,7 +361,7 @@ class nonogram_component : public ftxui::ComponentBase {
                      return fmt::format("{:4}", hint);
                  }) | rv::enumerate) {
                 const auto canvas_x{
-                    static_cast<int>(board_position_.x - (3 * (i + 1)) - 1) *
+                    gsl::narrow<int>(board_position_.x - (3 * (i + 1)) - 1) *
                     2};
                 const ftxui::Color fg_color{selected.y == y ? black : white};
                 const ftxui::Color bg_color{selected.y == y ? white_highlight
@@ -383,7 +381,7 @@ class nonogram_component : public ftxui::ComponentBase {
                      return fmt::format("{:2}", hint);
                  }) | rv::enumerate) {
                 const auto canvas_y{
-                    static_cast<int>(board_position_.y - (i + 1)) * 4};
+                    gsl::narrow<int>(board_position_.y - (i + 1)) * 4};
                 const ftxui::Color fg_color{selected.x == x ? black : white};
                 const ftxui::Color bg_color{selected.x == x ? white_highlight
                                                             : black};
@@ -413,7 +411,7 @@ void play_puzzle(std::string_view name)
     auto game{std::make_shared<nonogram_game>()};
     // TODO: Move this to nonogram_game constructor or static factory or
     // something
-    game->puzzle = std::make_shared<nonogram_puzzle>(load_puzzle(name));
+    game->puzzle = std::make_shared<nonogram_puzzle>(name);
     game->board.resize(game->puzzle->nonogram.size());
 
     const std::string solve_text{"Solve"};
