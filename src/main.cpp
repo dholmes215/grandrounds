@@ -319,9 +319,6 @@ class nonogram_component : public ftxui::ComponentBase {
         const int width{game.puzzle->dimensions.x};
         const int height{game.puzzle->dimensions.y};
 
-        const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
-            return static_cast<int>(vec.size());
-        }};
         const ftxui::Color black{0, 0, 0};
         const ftxui::Color almost_black{32, 32, 32};
         const ftxui::Color black_highlight{32, 32, 64};
@@ -354,14 +351,15 @@ class nonogram_component : public ftxui::ComponentBase {
         }
 
         for (int y{0}; y < height; y++) {
-            const auto& this_row_hints{puzzle.row_hints[y]};
+            const auto& this_row_hints{
+                puzzle.row_hints[gsl::narrow<std::size_t>(y)]};
             const auto canvas_y{(board_position_.y + y) * 4};
             for (const auto [i, str] :
                  this_row_hints | rv::reverse | rv::transform([](auto hint) {
                      return fmt::format("{:4}", hint);
                  }) | rv::enumerate) {
                 const auto canvas_x{
-                    gsl::narrow<int>(board_position_.x - (3 * (i + 1)) - 1) *
+                    (board_position_.x - (3 * (gsl::narrow<int>(i) + 1)) - 1) *
                     2};
                 const ftxui::Color fg_color{selected.y == y ? black : white};
                 const ftxui::Color bg_color{selected.y == y ? white_highlight
@@ -374,14 +372,15 @@ class nonogram_component : public ftxui::ComponentBase {
         }
 
         for (int x{0}; x < width; x++) {
-            const auto& this_col_hints{puzzle.col_hints[x]};
+            const auto& this_col_hints{
+                puzzle.col_hints[gsl::narrow<std::size_t>(x)]};
             const auto canvas_x{(board_position_.x + x * 2) * 2};
             for (auto [i, str] :
                  this_col_hints | rv::reverse | rv::transform([](auto hint) {
                      return fmt::format("{:2}", hint);
                  }) | rv::enumerate) {
                 const auto canvas_y{
-                    gsl::narrow<int>(board_position_.y - (i + 1)) * 4};
+                    (board_position_.y - (gsl::narrow<int>(i) + 1)) * 4};
                 const ftxui::Color fg_color{selected.x == x ? black : white};
                 const ftxui::Color bg_color{selected.x == x ? white_highlight
                                                             : black};
