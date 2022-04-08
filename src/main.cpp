@@ -291,19 +291,22 @@ class nonogram_component : public ftxui::ComponentBase {
     void Solve() { game_->board = game_->puzzle->nonogram; }
 
    private:
-    static inline const ftxui::Color black{0, 0, 0};
-    static inline const ftxui::Color almost_black{32, 32, 32};
-    static inline const ftxui::Color black_highlight{32, 32, 64};
-    static inline const ftxui::Color white{255, 255, 255};
-    static inline const ftxui::Color white_highlight{223, 223, 255};
+    // These are functions instead of static constants because somewhat
+    // surprisingly, the ftxui::Color constructor does different things at
+    // runtime based on environment variables, and can throw exceptions.
+    [[nodiscard]] static ftxui::Color black() { return {0, 0, 0}; }
+    [[nodiscard]] static ftxui::Color almost_black() { return {32, 32, 32}; }
+    [[nodiscard]] static ftxui::Color black_select() { return {32, 32, 64}; }
+    [[nodiscard]] static ftxui::Color white() { return {255, 255, 255}; }
+    [[nodiscard]] static ftxui::Color white_select() { return {223, 223, 255}; }
 
     static void draw_rect(ftxui::Canvas& canvas,
-                   int x,
-                   int y,
-                   int width,
-                   int height,
-                   bool value,
-                   ftxui::Color color)
+                          int x,
+                          int y,
+                          int width,
+                          int height,
+                          bool value,
+                          ftxui::Color color)
     {
         for (auto [x_, y_] : rv::cartesian_product(rv::ints(x, x + width),
                                                    rv::ints(y, y + height))) {
@@ -317,18 +320,18 @@ class nonogram_component : public ftxui::ComponentBase {
         const int width{game_->puzzle->dimensions.x};
         if (board[gsl::narrow<std::size_t>(square.y * width + square.x)] != 0) {
             if (selected_.x == square.x || selected_.y == square.y) {
-                return black_highlight;
+                return black_select();
             }
             else {
-                return almost_black;
+                return almost_black();
             }
         }
         else {
             if (selected_.x == square.x || selected_.y == square.y) {
-                return white_highlight;
+                return white_select();
             }
             else {
-                return white;
+                return white();
             }
         }
     }
@@ -353,13 +356,13 @@ class nonogram_component : public ftxui::ComponentBase {
         }
 
         const std::function default_stylizer{[=](ftxui::Pixel& p) {
-            p.background_color = black;
-            p.foreground_color = white;
+            p.background_color = black();
+            p.foreground_color = white();
         }};
 
         const std::function highlight_stylizer{[=](ftxui::Pixel& p) {
-            p.background_color = white_highlight;
-            p.foreground_color = black;
+            p.background_color = white_select();
+            p.foreground_color = black();
         }};
 
         // Draw row hints
