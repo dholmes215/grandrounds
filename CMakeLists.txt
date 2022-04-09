@@ -23,6 +23,10 @@ if(NOT ftxui_POPULATED)
   add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+# Using FetchContent for these is a workaround to an issue where there are
+# intermittent failures finding the packages when using Conan to install them
+# (and also to get the HEAD version of range-v3 for a bug-fix that isn't in 
+# the latest release)
 FetchContent_Declare(
         Range-v3
         GIT_REPOSITORY "https://github.com/ericniebler/range-v3"

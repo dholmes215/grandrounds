@@ -10,22 +10,18 @@
 #include "nonogram_component.hpp"
 #include "range.hpp"
 
-#include <gsl/narrow>
-
-#include <docopt/docopt.h>
-#include <spdlog/spdlog.h>
+#include <fmt/format.h>
 #include <ftxui/component/captured_mouse.hpp>      // for ftxui
 #include <ftxui/component/component.hpp>           // for Slider
 #include <ftxui/component/screen_interactive.hpp>  // for ScreenInteractive
+
+#include <gsl/narrow>
 
 #include <algorithm>
 #include <array>
 #include <cstdint>
 #include <filesystem>
-#include <fstream>
 #include <functional>
-#include <iostream>
-#include <random>
 #include <string_view>
 #include <vector>
 
@@ -103,21 +99,13 @@ int main(int argc, const char** argv)
     Usage:
           grandrounds
           grandrounds puzzle <NAME>
-          grandrounds (-h | --help)
-          grandrounds --version
- Options:
-          -h --help     Show this screen.
-          --version     Show version.
 )";
 
-        const std::map<std::string, docopt::value> args{docopt::docopt(
-            USAGE, {std::next(argv), std::next(argv, argc)},
-            true,  // show help if requested
-            fmt::format("{} {}", grandrounds::cmake::project_name,
-                        grandrounds::cmake::project_version))};
-
-        if (args.at("puzzle").asBool()) {
-            grandrounds::play_puzzle(args.at("<NAME>").asString());
+        if (argc == 1) {
+            // TODO
+        }
+        else if (argc == 3 && argv[1] == std::string_view{"puzzle"}) {
+            grandrounds::play_puzzle(argv[2]);
         }
         else {
             // TODO
