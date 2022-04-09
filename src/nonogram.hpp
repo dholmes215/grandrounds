@@ -25,7 +25,9 @@ struct puzzle_data {
 };
 
 struct color {
-    // TODO
+    std::uint8_t r{0};
+    std::uint8_t g{0};
+    std::uint8_t b{0};
 };
 
 enum class board_cell : std::uint8_t { clear, filled, marked };
@@ -61,8 +63,9 @@ struct nonogram_puzzle {
     explicit nonogram_puzzle(std::string_view name);
 
     board_coords dimensions;
-    std::vector<board_cell> nonogram;
-    std::vector<color> picture;
+    std::vector<board_cell> solution;
+    canvas_coords photo_dimensions;
+    std::vector<color> photo;
     puzzle_data data;
     std::vector<std::vector<std::uint8_t>> row_hints;
     std::vector<std::vector<std::uint8_t>> col_hints;
@@ -74,6 +77,8 @@ struct nonogram_game {
     std::shared_ptr<nonogram_puzzle> puzzle;
     std::vector<board_cell> board;
 };
+
+bool check_solution(const nonogram_game& game) noexcept;
 
 }  // namespace grandrounds
 

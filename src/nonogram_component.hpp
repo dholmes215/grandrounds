@@ -35,13 +35,15 @@ class nonogram_component : public ftxui::ComponentBase {
                           ftxui::Color color);
 
     [[nodiscard]] ftxui::Color square_color(board_coords square) const noexcept;
-
+	
+    [[nodiscard]] ftxui::Canvas draw_photo() const;
     [[nodiscard]] ftxui::Canvas draw_board() const;
 
     std::shared_ptr<nonogram_game> game_;  // State of the game in progress
     board_coords selected_{-1, -1};  // Currently-selected square on the board
     term_coords board_position_;     // Terminal coordinates where the top-left
                                      // character of the board will be drawn
+	bool solved_{false};
 };
 
 }  // namespace grandrounds

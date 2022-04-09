@@ -28,6 +28,7 @@ namespace {
 [[nodiscard]] ftxui::Color white_select() { return {223, 223, 255}; } // NOLINT magic numbers
 [[nodiscard]] ftxui::Color gray() { return {128, 128, 128}; } // NOLINT magic numbers
 [[nodiscard]] ftxui::Color gray_select() { return {128, 128, 160}; } // NOLINT magic numbers
+[[nodiscard]] ftxui::Color red() { return {255, 0, 0}; } // NOLINT magic numbers
 // clang-format on
 
 }  // namespace
@@ -41,7 +42,7 @@ nonogram_component::nonogram_component(std::shared_ptr<nonogram_game> game)
 
 ftxui::Element nonogram_component::Render()
 {
-    return ftxui::canvas(draw_board());
+    return ftxui::canvas(solved_ ? draw_photo() : draw_board());
 }
 
 bool nonogram_component::OnEvent(ftxui::Event event)
@@ -56,7 +57,7 @@ bool nonogram_component::OnEvent(ftxui::Event event)
                      mouse_y - board_position_.y};
         bool in_range{selected_.x >= 0 && selected_.x < width &&
                       selected_.y >= 0 && selected_.y < height};
-        if (in_range) {
+        if (in_range && !solved_) {
             if (event.mouse().motion == ftxui::Mouse::Pressed) {
                 const auto board_idx{static_cast<std::size_t>(
                     selected_.y * width + selected_.x)};
@@ -69,6 +70,8 @@ bool nonogram_component::OnEvent(ftxui::Event event)
                 else if (event.mouse().button == ftxui::Mouse::Middle) {
                     game_->board[board_idx] = board_cell::marked;
                 }
+
+                solved_ = check_solution(*game_);
             }
         }
         else {
@@ -81,7 +84,7 @@ bool nonogram_component::OnEvent(ftxui::Event event)
 
 void nonogram_component::Solve()
 {
-    game_->board = game_->puzzle->nonogram;
+    game_->board = game_->puzzle->solution;
 }
 
 void nonogram_component::draw_rect(ftxui::Canvas& canvas,
@@ -105,36 +108,59 @@ void nonogram_component::draw_rect(ftxui::Canvas& canvas,
     const int width{game_->puzzle->dimensions.x};
     const auto cell{
         board[gsl::narrow<std::size_t>(square.y * width + square.x)]};
-    if (cell == board_cell::filled) {
-        if (selected_.x == square.x || selected_.y == square.y) {
-            return black_select();
-        }
-        else {
-            return almost_black();
-        }
+    const bool is_selected{selected_.x == square.x || selected_.y == square.y};
+    switch (cell) {
+        case board_cell::clear:
+            return is_selected ? white_select() : white();
+        case board_cell::filled:
+            return is_selected ? black_select() : almost_black();
+        case board_cell::marked:
+            return is_selected ? gray_select() : gray();
+        default:
+            return red();
     }
-    else if (cell == board_cell::clear) {
-        if (selected_.x == square.x || selected_.y == square.y) {
-            return white_select();
-        }
-        else {
-            return white();
-        }
+}
+
+[[nodiscard]] auto all_points(const auto& dimensions)
+{
+    return rv::cartesian_product(rv::ints(0, dimensions.y),
+                                 rv::ints(0, dimensions.x)) |
+           rv::transform([](auto coords) {
+               // Swap the coordinates so that y is first in the tuple
+               return std::make_tuple(std::get<1>(coords), std::get<0>(coords));
+           });
+}
+
+canvas_coords term2canvas(term_coords board_position, term_coords term) noexcept
+{
+    return {(board_position.x + term.x - 1) * 2,
+            (board_position.y + term.y - 1) * 4};
+}
+
+[[nodiscard]] ftxui::Canvas nonogram_component::draw_photo() const
+{
+    // const auto& puzzle{*game_->puzzle};
+    const int width{game_->puzzle->dimensions.x};
+    const int height{game_->puzzle->dimensions.y};
+
+    ftxui::Canvas out{(width + board_position_.x) * 4,
+                      (height + board_position_.y) * 4};
+
+    // Draw photo
+    for (const auto [x, y] : all_points(game_->puzzle->photo_dimensions)) {
+        // TODO: extract function to convert coordinates
+        const canvas_coords canvas_offset{term2canvas(board_position_, {0, 0})};
+        const color c{
+            game_->puzzle->photo[y * game_->puzzle->photo_dimensions.x + x]};
+        out.DrawBlockLine(canvas_offset.x + x * 2, canvas_offset.y + y * 2,
+                          canvas_offset.x + x * 2 + 1, canvas_offset.y + y * 2,
+                          {c.r, c.g, c.b});
     }
-    else {
-        // marked
-		if (selected_.x == square.x || selected_.y == square.y) {
-			return gray_select();
-		}
-		else {
-			return gray();
-		}
-    }
+    return out;
 }
 
 [[nodiscard]] ftxui::Canvas nonogram_component::draw_board() const
 {
-    // FIXME: reduce complexity
     const auto& puzzle{*game_->puzzle};
     const int width{game_->puzzle->dimensions.x};
     const int height{game_->puzzle->dimensions.y};
@@ -143,8 +169,7 @@ void nonogram_component::draw_rect(ftxui::Canvas& canvas,
                       (height + board_position_.y) * 4};
 
     // Draw board
-    for (const auto [x, y] :
-         rv::cartesian_product(rv::ints(0, width), rv::ints(0, height))) {
+    for (const auto [x, y] : all_points(game_->puzzle->dimensions)) {
         // TODO: extract function to convert coordinates
         draw_rect(out, 4 * x + 2 * board_position_.x,
                   4 * (y + board_position_.y), 4, 4, true,

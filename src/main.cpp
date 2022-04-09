@@ -48,7 +48,7 @@ void play_puzzle(std::string_view name)
     // TODO: Move this to nonogram_game constructor or static factory or
     // something
     game->puzzle = std::make_shared<nonogram_puzzle>(name);
-    game->board.resize(game->puzzle->nonogram.size());
+    game->board.resize(game->puzzle->solution.size());
 
     const std::string solve_text{"Solve"};
     const std::string quit_text{"Quit"};
