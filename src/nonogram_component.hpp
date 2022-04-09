@@ -24,6 +24,7 @@ class nonogram_component : public ftxui::ComponentBase {
     bool OnEvent(ftxui::Event event) override;
 
     void Solve();
+    void Reset();
 
    private:
     static void draw_rect(ftxui::Canvas& canvas,

@@ -87,6 +87,12 @@ void nonogram_component::Solve()
     game_->board = game_->puzzle->solution;
 }
 
+void nonogram_component::Reset()
+{
+	r::fill(game_->board, board_cell::clear);
+    solved_ = false;
+}
+
 void nonogram_component::draw_rect(ftxui::Canvas& canvas,
                                    int x,
                                    int y,

@@ -51,6 +51,7 @@ void play_puzzle(std::string_view name)
     game->board.resize(game->puzzle->solution.size());
 
     const std::string solve_text{"Solve"};
+    const std::string reset_text{"Reset"};
     const std::string quit_text{"Quit"};
 
     auto screen{ftxui::ScreenInteractive::TerminalOutput()};
@@ -58,9 +59,11 @@ void play_puzzle(std::string_view name)
     auto puzzle_component{std::make_shared<nonogram_component>(game)};
     auto solve_button{
         ftxui::Button(&solve_text, [&] { puzzle_component->Solve(); })};
+    auto reset_button{
+        ftxui::Button(&reset_text, [&] { puzzle_component->Reset(); })};
     auto quit_button{ftxui::Button(&quit_text, screen.ExitLoopClosure())};
     auto right_container{
-        ftxui::Container::Vertical({solve_button, quit_button})};
+        ftxui::Container::Vertical({solve_button, reset_button, quit_button})};
 
     std::vector<ftxui::Component> all_components;
     all_components.push_back(puzzle_component);
@@ -69,7 +72,8 @@ void play_puzzle(std::string_view name)
         return ftxui::vbox(
             {{ftxui::text(fmt::format("Mouse: {},{}", mouse_x, mouse_y)),
               ftxui::text(fmt::format("Frame: {}", frame++)),
-              solve_button->Render(), quit_button->Render()}});
+              solve_button->Render(), reset_button->Render(),
+              quit_button->Render()}});
     })};
     all_components.push_back(right_panel);
 
