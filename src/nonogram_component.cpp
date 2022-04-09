@@ -89,7 +89,7 @@ void nonogram_component::Solve()
 
 void nonogram_component::Reset()
 {
-	r::fill(game_->board, board_cell::clear);
+    r::fill(game_->board, board_cell::clear);
     solved_ = false;
 }
 
@@ -156,8 +156,8 @@ canvas_coords term2canvas(term_coords board_position, term_coords term) noexcept
     for (const auto [x, y] : all_points(game_->puzzle->photo_dimensions)) {
         // TODO: extract function to convert coordinates
         const canvas_coords canvas_offset{term2canvas(board_position_, {0, 0})};
-        const color c{
-            game_->puzzle->photo[y * game_->puzzle->photo_dimensions.x + x]};
+        const color c{game_->puzzle->photo[gsl::narrow<std::size_t>(
+            y * game_->puzzle->photo_dimensions.x + x)]};
         out.DrawBlockLine(canvas_offset.x + x * 2, canvas_offset.y + y * 2,
                           canvas_offset.x + x * 2 + 1, canvas_offset.y + y * 2,
                           {c.r, c.g, c.b});
