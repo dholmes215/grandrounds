@@ -92,6 +92,7 @@ void play_puzzle(std::string_view name)
 
 int main(int argc, const char** argv)
 {
+    const std::span args{argv, gsl::narrow<std::size_t>(argc)};
     try {
         static constexpr auto USAGE =
             R"(grandrounds
@@ -100,19 +101,15 @@ int main(int argc, const char** argv)
           grandrounds
           grandrounds puzzle <NAME>
 )";
-
         // XXX I removed docopt because the the current Conan+CMake build
         // intermittently fails to find it.  This is a workaround.
         if (argc == 1) {
             // FIXME
             fmt::print("TODO: Implement game");
         }
-        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-        //   (to allow argv[] accesses)
-        else if (argc == 3 && argv[1] == std::string_view{"puzzle"}) {
-            grandrounds::play_puzzle(argv[2]);
+        else if (argc == 3 && args[1] == std::string_view{"puzzle"}) {
+            grandrounds::play_puzzle(args[2]);
         }
-        // NOLINTEND
         else {
             fmt::print("{}", USAGE);
         }
