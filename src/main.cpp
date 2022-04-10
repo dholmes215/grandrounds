@@ -107,12 +107,12 @@ int main(int argc, const char** argv)
             // FIXME
             fmt::print("TODO: Implement game");
         }
-		// NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-		//   (to allow argv[] accesses)
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        //   (to allow argv[] accesses)
         else if (argc == 3 && argv[1] == std::string_view{"puzzle"}) {
             grandrounds::play_puzzle(argv[2]);
         }
-		// NOLINTEND
+        // NOLINTEND
         else {
             fmt::print("{}", USAGE);
         }
