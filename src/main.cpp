@@ -92,8 +92,8 @@ void play_puzzle(std::string_view name)
 
 int main(int argc, const char** argv)
 {
-    const std::span args{argv, gsl::narrow<std::size_t>(argc)};
     try {
+        const std::span args{argv, gsl::narrow<std::size_t>(argc)};
         static constexpr auto USAGE =
             R"(grandrounds
 
