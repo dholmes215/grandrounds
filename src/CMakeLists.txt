@@ -5,7 +5,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(lodepng REQUIRED)
 #find_package(range-v3 REQUIRED)
 
-add_executable(grandrounds main.cpp "grid.hpp" "range.hpp" "nonogram_component.hpp" "nonogram.hpp" "nonogram.cpp" "nonogram_component.cpp" "file.hpp" "file.cpp")
+add_executable(grandrounds main.cpp "grid.hpp" "range.hpp" "nonogram.hpp" "nonogram.cpp" "nonogram_ftxui.cpp" "file.hpp" "file.cpp")
 target_link_libraries(
   grandrounds
   PRIVATE project_options

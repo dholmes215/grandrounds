@@ -5,15 +5,20 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#ifndef NONOGRAM_COMPONENT_HPP
-#define NONOGRAM_COMPONENT_HPP
+#ifndef NONOGRAM_FTXUI_HPP
+#define NONOGRAM_FTXUI_HPP
 
+#include "file.hpp"
 #include "nonogram.hpp"
 
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/event.hpp>
 
 namespace grandrounds {
+
+void draw_photo_on_canvas(ftxui::Canvas& canvas,
+                          loaded_image& photo,
+                          canvas_coords offset);
 
 class nonogram_component : public ftxui::ComponentBase {
    public:
@@ -49,4 +54,4 @@ class nonogram_component : public ftxui::ComponentBase {
 
 }  // namespace grandrounds
 
-#endif  // NONOGRAM_COMPONENT_HPP
+#endif  // NONOGRAM_FTXUI_HPP

@@ -1,11 +1,11 @@
-//
+﻿//
 // Copyright (c) 2022 David Holmes (dholmes at dholmes dot us)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "nonogram_component.hpp"
+#include "nonogram_ftxui.hpp"
 #include "grid.hpp"
 
 #include <fmt/format.h>
@@ -14,6 +14,34 @@
 #include <gsl/narrow>
 
 namespace grandrounds {
+
+void draw_photo_on_canvas(ftxui::Canvas& canvas,
+                          loaded_image& photo,
+                          canvas_coords offset)
+{
+    // Offset must be a terminal character; mask out last bits to make x
+    // multiple of 2 and y multiple of 4
+    offset.x &= -1;
+    offset.y &= -3;
+
+    auto pixel_colors{photo.rgba_pixel_data | rv::chunk(4) |
+                      rv::transform([](auto&& pixel) {
+                          return ftxui::Color{pixel[0], pixel[1], pixel[2]};
+                      })};
+    const int width{gsl::narrow<int>(photo.width)};
+    const int height{gsl::narrow<int>(photo.height)};
+    auto color_rows{grid_rows(pixel_colors, width)};
+    for (int y{0}; y < height; y += 2) {
+        for (int x{0}; x < width; x++) {
+            const std::string c{"▄"};
+            const std::function stylizer{[=](ftxui::Pixel& p) {
+                p.background_color = color_rows[y][x];
+                p.foreground_color = color_rows[y + 1][x];
+            }};
+            canvas.DrawText(x * 2 + offset.x, y * 2 + offset.y, c, stylizer);
+        }
+    }
+}
 
 namespace {
 

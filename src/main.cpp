@@ -8,7 +8,7 @@
 #include "file.hpp"
 #include "grid.hpp"
 #include "nonogram.hpp"
-#include "nonogram_component.hpp"
+#include "nonogram_ftxui.hpp"
 #include "range.hpp"
 
 #include <fmt/format.h>
@@ -94,34 +94,6 @@ void play_puzzles(ftxui::ScreenInteractive& screen)
 loaded_image load_title_image()
 {
     return load_image(find_puzzles_dir() / "title.png");
-}
-
-void draw_photo_on_canvas(ftxui::Canvas& canvas,
-                          loaded_image& photo,
-                          canvas_coords offset)
-{
-    // Offset must be a terminal character; mask out last bits to make x
-    // multiple of 2 and y multiple of 4
-    offset.x &= -1;
-    offset.y &= -3;
-
-    auto pixel_colors{photo.rgba_pixel_data | rv::chunk(4) |
-                      rv::transform([](auto&& pixel) {
-                          return ftxui::Color{pixel[0], pixel[1], pixel[2]};
-                      })};
-    const int width{gsl::narrow<int>(photo.width)};
-    const int height{gsl::narrow<int>(photo.height)};
-    auto color_rows{grid_rows(pixel_colors, width)};
-    for (int y{0}; y < height; y += 2) {
-        for (int x{0}; x < width; x++) {
-            const std::string c{"▄"};
-            const std::function stylizer{[=](ftxui::Pixel& p) {
-                p.background_color = color_rows[y][x];
-                p.foreground_color = color_rows[y + 1][x];
-            }};
-            canvas.DrawText(x * 2 + offset.x, y * 2 + offset.y, c, stylizer);
-        }
-    }
 }
 
 void play_game()
