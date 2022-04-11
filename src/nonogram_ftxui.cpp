@@ -19,10 +19,11 @@ void draw_photo_on_canvas(ftxui::Canvas& canvas,
                           loaded_image& photo,
                           canvas_coords offset)
 {
-    // Offset must be a terminal character; mask out last bits to make x
-    // multiple of 2 and y multiple of 4
-    offset.x &= -1;
-    offset.y &= -3;
+    // Offset must be a terminal character; round down to the nearest
+    offset.x /= 2;
+    offset.x *= 2;
+    offset.y /= 4;
+    offset.y *= 4;
 
     auto pixel_colors{photo.rgba_pixel_data | rv::chunk(4) |
                       rv::transform([](auto&& pixel) {
