@@ -16,6 +16,8 @@ To play this implementation of the game specifically: click with the left mouse 
 
 ## Requirements
 
+The puzzles are not included in the binary release packages, so if you don't build from source, they must be downloaded from the source release, or from the git repository itself.  The "puzzles" directory must be in either the working directory or some ancestor of the working directory.
+
 You'll need a terminal with mouse support, ideally 24-bit color support, and at least enough font support to display a "▄" character.  I've only tested on Windows, with Windows Terminal, which should work out of the box.
 
 ## Bugs
