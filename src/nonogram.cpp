@@ -5,6 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "file.hpp"
 #include "nonogram.hpp"
 #include "grid.hpp"
 #include "range.hpp"
@@ -22,22 +23,6 @@
 namespace grandrounds {
 
 namespace {
-
-class path_error : public std::runtime_error {
-   public:
-    explicit path_error(const std::string& message)
-        : std::runtime_error(message)
-    {
-    }
-};
-
-class file_error : public std::runtime_error {
-   public:
-    explicit file_error(const std::string& message)
-        : std::runtime_error(message)
-    {
-    }
-};
 
 // Read an entire file into a std::string.  Will throw if any failure occurs.
 // TODO: test
@@ -62,26 +47,6 @@ std::string slurp(const std::filesystem::path& path)
     return slurp(stream);
 }
 
-// Auto-detect the directory containing puzzle files.
-std::filesystem::path find_puzzles_dir()
-{
-    auto path = std::filesystem::current_path();
-    while (!std::filesystem::exists(path / "puzzles")) {
-        auto last_path_size = path.string().size();
-        path = path.parent_path();
-        if (path.string().size() >= last_path_size) {
-            throw grandrounds::path_error("Could not locate puzzles directory");
-        }
-    }
-    return std::filesystem::canonical(path / "puzzles");
-}
-
-struct loaded_image {
-    std::vector<std::uint8_t> rgba_pixel_data;
-    unsigned int width{};
-    unsigned int height{};
-};
-
 puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
 {
     const auto json_text{slurp(json_path)};
@@ -98,18 +63,6 @@ puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
     return out;
 }
 
-loaded_image load_image(const std::filesystem::path& nonogram_png_path)
-{
-    loaded_image out;
-    const auto error{lodepng::decode(out.rgba_pixel_data, out.width, out.height,
-                                     nonogram_png_path.string())};
-    if (error != 0) {
-        throw file_error{fmt::format("Could not load {}: {} {}",
-                                     nonogram_png_path.string(), error,
-                                     lodepng_error_text(error))};
-    }
-    return out;
-}
 
 std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 {

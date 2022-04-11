@@ -1,10 +1,11 @@
-//
+﻿//
 // Copyright (c) 2022 David Holmes (dholmes at dholmes dot us)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "file.hpp"
 #include "grid.hpp"
 #include "nonogram.hpp"
 #include "nonogram_component.hpp"
@@ -34,7 +35,7 @@ namespace grandrounds {
 
 namespace {
 
-void play_puzzle(std::string_view name)
+void play_puzzle(ftxui::ScreenInteractive& screen, std::string_view name)
 {
     int mouse_x{0};
     int mouse_y{0};
@@ -49,8 +50,6 @@ void play_puzzle(std::string_view name)
     const std::string solve_text{"Solve"};
     const std::string reset_text{"Reset"};
     const std::string quit_text{"Quit"};
-
-    auto screen{ftxui::ScreenInteractive::TerminalOutput()};
 
     auto puzzle_component{std::make_shared<nonogram_component>(game)};
     auto solve_button{
@@ -86,6 +85,77 @@ void play_puzzle(std::string_view name)
     screen.Loop(container_with_mouse);
 }
 
+void play_puzzles(ftxui::ScreenInteractive& screen)
+{
+    play_puzzle(screen, "cottontail");
+    play_puzzle(screen, "lake_mendoza");
+}
+
+loaded_image load_title_image()
+{
+    return load_image(find_puzzles_dir() / "title.png");
+}
+
+void draw_photo_on_canvas(ftxui::Canvas& canvas,
+                          loaded_image& photo,
+                          canvas_coords offset)
+{
+    // Offset must be a terminal character; mask out last bits to make x
+    // multiple of 2 and y multiple of 4
+    offset.x &= -1;
+    offset.y &= -3;
+
+    auto pixel_colors{photo.rgba_pixel_data | rv::chunk(4) |
+                      rv::transform([](auto&& pixel) {
+                          return ftxui::Color{pixel[0], pixel[1], pixel[2]};
+                      })};
+    const int width{gsl::narrow<int>(photo.width)};
+    const int height{gsl::narrow<int>(photo.height)};
+    auto color_rows{grid_rows(pixel_colors, width)};
+    for (int y{0}; y < height; y += 2) {
+        for (int x{0}; x < width; x++) {
+            const std::string c{"▄"};
+            const std::function stylizer{[=](ftxui::Pixel& p) {
+                p.background_color = color_rows[y][x];
+                p.foreground_color = color_rows[y + 1][x];
+            }};
+            canvas.DrawText(x * 2 + offset.x, y * 2 + offset.y, c, stylizer);
+        }
+    }
+}
+
+void play_game()
+{
+    auto screen{ftxui::ScreenInteractive::TerminalOutput()};
+    ftxui::Canvas canvas{160, 96};
+    auto title_image{load_title_image()};
+    draw_photo_on_canvas(canvas, title_image, {2, 2});
+
+    auto start_button{ftxui::Button("Start", [&] { play_puzzles(screen); })};
+    auto quit_button{ftxui::Button("Quit", screen.ExitLoopClosure())};
+    auto button_container{
+        ftxui::Container::Vertical({start_button, quit_button})};
+
+    auto caption{ftxui::vbox(
+        {ftxui::paragraphAlignCenter(
+             "The Grand Rounds Scenic Byway is a 50-mile loop of parks "
+             "and trails around"),
+         ftxui::paragraphAlignCenter(
+             "    the city of Minneapolis, MN.  Explore by solving "
+             "nonogram puzzles!    "),
+         ftxui::paragraphAlignCenter(
+             "Photo (C) 2005 Adam Backstrom (from "
+             "Wikipedia, CC-BA-SA-3.0/GFDL license)")})};
+
+    auto renderer{ftxui::Renderer(button_container, [&] {
+        auto layout{ftxui::hbox({ftxui::vbox({ftxui::canvas(canvas), caption}),
+                                 button_container->Render()})};
+        return layout;
+    })};
+
+    screen.Loop(renderer);
+}
+
 }  // namespace
 
 }  // namespace grandrounds
@@ -104,11 +174,11 @@ int main(int argc, const char** argv)
         // XXX I removed docopt because the the current Conan+CMake build
         // intermittently fails to find it.  This is a workaround.
         if (argc == 1) {
-            // FIXME
-            fmt::print("TODO: Implement game");
+            grandrounds::play_game();
         }
         else if (argc == 3 && args[1] == std::string_view{"puzzle"}) {
-            grandrounds::play_puzzle(args[2]);
+            auto screen{ftxui::ScreenInteractive::TerminalOutput()};
+            grandrounds::play_puzzle(screen, args[2]);
         }
         else {
             fmt::print("{}", USAGE);
