@@ -8,6 +8,8 @@
 #ifndef NONOGRAM_HPP
 #define NONOGRAM_HPP
 
+#include "file.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -65,7 +67,8 @@ struct nonogram_puzzle {
     board_coords dimensions;
     std::vector<board_cell> solution;
     canvas_coords photo_dimensions;
-    std::vector<color> photo;
+    loaded_image photo;
+    loaded_image small_photo;
     puzzle_data data;
     std::vector<std::vector<std::uint8_t>> row_hints;
     std::vector<std::vector<std::uint8_t>> col_hints;

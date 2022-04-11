@@ -17,7 +17,7 @@
 namespace grandrounds {
 
 void draw_photo_on_canvas(ftxui::Canvas& canvas,
-                          loaded_image& photo,
+                          const loaded_image& photo,
                           canvas_coords offset);
 
 class nonogram_component : public ftxui::ComponentBase {
@@ -30,6 +30,8 @@ class nonogram_component : public ftxui::ComponentBase {
 
     void Solve();
     void Reset();
+	
+    bool IsSolved() { return solved_; }
 
    private:
     static void draw_rect(ftxui::Canvas& canvas,

@@ -5,8 +5,8 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "file.hpp"
 #include "nonogram.hpp"
+#include "file.hpp"
 #include "grid.hpp"
 #include "range.hpp"
 
@@ -63,7 +63,6 @@ puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
     return out;
 }
 
-
 std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 {
     auto iter{row_or_column.begin()};
@@ -95,13 +94,15 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
     const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
     const auto photo_path{puzzle_dir / fmt::format("{}_photo.png", name)};
+    const auto small_path{puzzle_dir / fmt::format("{}_small.png", name)};
     auto solution_image{load_image(nonogram_path)};
     auto photo_image{load_image(photo_path)};
+    auto small_image{load_image(small_path)};
 
     dimensions.x = gsl::narrow<int>(solution_image.width);
     dimensions.y = gsl::narrow<int>(solution_image.height);
-	photo_dimensions.x = gsl::narrow<int>(photo_image.width);
-	photo_dimensions.y = gsl::narrow<int>(photo_image.height);
+    photo_dimensions.x = gsl::narrow<int>(photo_image.width);
+    photo_dimensions.y = gsl::narrow<int>(photo_image.height);
     // Split image data into four-byte (RGBA) chunks and convert those to board
     // cells
     solution = solution_image.rgba_pixel_data | rv::chunk(4) |
@@ -112,11 +113,8 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
                }) |
                r::to<std::vector>;
 
-    photo = photo_image.rgba_pixel_data | rv::chunk(4) |
-            rv::transform([](auto&& pixel) -> color {
-                return {pixel[0], pixel[1], pixel[2]};
-            }) |
-            r::to<std::vector>;
+    photo = photo_image;
+    small_photo = small_image;
 
     data = load_puzzle_data(json_path);
 

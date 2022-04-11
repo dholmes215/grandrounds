@@ -35,28 +35,49 @@ namespace grandrounds {
 
 namespace {
 
+void show_info(ftxui::ScreenInteractive& screen, nonogram_game& game)
+{
+    auto& photo{game.puzzle->photo};
+    int width{gsl::narrow<int>(photo.width)};
+    int height{gsl::narrow<int>(photo.height)};
+    ftxui::Canvas canvas{width * 2, height * 2};
+    draw_photo_on_canvas(canvas, photo, {0, 0});
+
+    auto continue_button{ftxui::Button("Continue", screen.ExitLoopClosure())};
+
+    auto button_with_info{ftxui::Renderer(continue_button, [&] {
+        return ftxui::hbox(
+            {ftxui::canvas(canvas),
+             ftxui::vbox(
+                 {ftxui::text(game.puzzle->data.title),
+                  ftxui::paragraph(game.puzzle->data.description),
+                  ftxui::text(fmt::format("{}, {}", game.puzzle->data.author,
+                                          game.puzzle->data.date)),
+                  ftxui::text(game.puzzle->data.license),
+                  continue_button->Render()})});
+    })};
+
+    screen.Loop(button_with_info);
+}
+
 void play_puzzle(ftxui::ScreenInteractive& screen, std::string_view name)
 {
-    int mouse_x{0};
-    int mouse_y{0};
-    int frame{0};
-
     auto game{std::make_shared<nonogram_game>()};
-    // TODO: Move this to nonogram_game constructor or static factory or
-    // something
     game->puzzle = std::make_shared<nonogram_puzzle>(name);
     game->board.resize(game->puzzle->solution.size());
 
     const std::string solve_text{"Solve"};
     const std::string reset_text{"Reset"};
-    const std::string quit_text{"Quit"};
+    std::string quit_continue_text{"Quit"};
 
     auto puzzle_component{std::make_shared<nonogram_component>(game)};
     auto solve_button{
         ftxui::Button(&solve_text, [&] { puzzle_component->Solve(); })};
     auto reset_button{
         ftxui::Button(&reset_text, [&] { puzzle_component->Reset(); })};
-    auto quit_button{ftxui::Button(&quit_text, screen.ExitLoopClosure())};
+
+    auto quit_button{
+        ftxui::Button(&quit_continue_text, screen.ExitLoopClosure())};
     auto right_container{
         ftxui::Container::Vertical({solve_button, reset_button, quit_button})};
 
@@ -65,24 +86,21 @@ void play_puzzle(ftxui::ScreenInteractive& screen, std::string_view name)
 
     auto right_panel{ftxui::Renderer(right_container, [&] {
         return ftxui::vbox(
-            {{ftxui::text(fmt::format("Mouse: {},{}", mouse_x, mouse_y)),
-              ftxui::text(fmt::format("Frame: {}", frame++)),
+            {{ftxui::text(fmt::format("Width: {}", game->puzzle->dimensions.x)),
+              ftxui::text(
+                  fmt::format("Height: {}", game->puzzle->dimensions.y)),
               solve_button->Render(), reset_button->Render(),
               quit_button->Render()}});
     })};
     all_components.push_back(right_panel);
 
     auto container = ftxui::Container::Horizontal(all_components);
-    auto container_with_mouse =
-        ftxui::CatchEvent(container, [&](ftxui::Event e) {
-            if (e.is_mouse()) {
-                mouse_x = (e.mouse().x - 1) * 2;
-                mouse_y = (e.mouse().y - 1) * 4;
-            }
-            return false;
-        });
 
-    screen.Loop(container_with_mouse);
+    screen.Loop(container);
+
+    if (puzzle_component->IsSolved()) {
+        show_info(screen, *game);
+    }
 }
 
 void play_puzzles(ftxui::ScreenInteractive& screen)
@@ -99,11 +117,16 @@ loaded_image load_title_image()
 void play_game()
 {
     auto screen{ftxui::ScreenInteractive::TerminalOutput()};
-    ftxui::Canvas canvas{160, 96}; // NOLINT magic number to fit terminal
+    ftxui::Canvas canvas{160, 96};  // NOLINT magic number to fit terminal
     auto title_image{load_title_image()};
-    draw_photo_on_canvas(canvas, title_image, {2, 2});
+    draw_photo_on_canvas(canvas, title_image, {0, 0});
 
-    auto start_button{ftxui::Button("Start", [&] { play_puzzles(screen); })};
+    bool start_clicked{false};
+
+    auto start_button{ftxui::Button("Start", [&] {
+        start_clicked = true;
+        screen.ExitLoopClosure()();
+    })};
     auto quit_button{ftxui::Button("Quit", screen.ExitLoopClosure())};
     auto button_container{
         ftxui::Container::Vertical({start_button, quit_button})};
@@ -126,6 +149,10 @@ void play_game()
     })};
 
     screen.Loop(renderer);
+
+    if (start_clicked) {
+        play_puzzles(screen);
+    }
 }
 
 }  // namespace

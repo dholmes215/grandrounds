@@ -16,7 +16,7 @@
 namespace grandrounds {
 
 void draw_photo_on_canvas(ftxui::Canvas& canvas,
-                          loaded_image& photo,
+                          const loaded_image& photo,
                           canvas_coords offset)
 {
     // Offset must be a terminal character; round down to the nearest
@@ -181,16 +181,9 @@ canvas_coords term2canvas(term_coords board_position, term_coords term) noexcept
     ftxui::Canvas out{(width + board_position_.x) * 4,
                       (height + board_position_.y) * 4};
 
-    // Draw photo
-    for (const auto [x, y] : all_points(game_->puzzle->photo_dimensions)) {
-        // TODO: extract function to convert coordinates
-        const canvas_coords canvas_offset{term2canvas(board_position_, {0, 0})};
-        const color c{game_->puzzle->photo[gsl::narrow<std::size_t>(
-            y * game_->puzzle->photo_dimensions.x + x)]};
-        out.DrawBlockLine(canvas_offset.x + x * 2, canvas_offset.y + y * 2,
-                          canvas_offset.x + x * 2 + 1, canvas_offset.y + y * 2,
-                          {c.r, c.g, c.b});
-    }
+    grandrounds::draw_photo_on_canvas(out, game_->puzzle->small_photo,
+                                      term2canvas(board_position_, {0, 0}));
+
     return out;
 }
 
