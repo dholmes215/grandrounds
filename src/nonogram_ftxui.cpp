@@ -37,7 +37,7 @@ void draw_photo_on_canvas(ftxui::Canvas& canvas,
             const std::string c{"▄"};
             const std::function stylizer{[=](ftxui::Pixel& p) {
                 p.background_color = color_rows[y][x];
-                p.foreground_color = color_rows[y + 1][x];
+                p.foreground_color = color_rows[y + 1LL][x];
             }};
             canvas.DrawText(x * 2 + offset.x, y * 2 + offset.y, c, stylizer);
         }

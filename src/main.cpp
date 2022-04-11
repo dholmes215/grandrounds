@@ -99,7 +99,7 @@ loaded_image load_title_image()
 void play_game()
 {
     auto screen{ftxui::ScreenInteractive::TerminalOutput()};
-    ftxui::Canvas canvas{160, 96};
+    ftxui::Canvas canvas{160, 96}; // NOLINT magic number to fit terminal
     auto title_image{load_title_image()};
     draw_photo_on_canvas(canvas, title_image, {2, 2});
 
