@@ -5,7 +5,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(lodepng REQUIRED)
 #find_package(range-v3 REQUIRED)
 
-add_executable(grandrounds main.cpp)
+add_executable(grandrounds main.cpp file.cpp file.hpp)
 target_link_libraries(
   grandrounds
   PRIVATE project_options
