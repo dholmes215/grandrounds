@@ -1,3 +1,5 @@
-﻿int main(int /* argc*/, const char** /* argv*/)
+﻿#include "nonogram.hpp"
+
+int main(int /* argc*/, const char** /* argv*/)
 {
 }
