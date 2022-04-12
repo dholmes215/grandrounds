@@ -19,23 +19,23 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
-//
-//namespace grandrounds {
-//
-//namespace {
-//
-//// Read an entire file into a std::string.  Will throw if any failure occurs.
-//// TODO: test
-//std::string slurp(std::istream& stream)
-//{
-//    std::stringstream buffer;
-//    buffer << stream.rdbuf();
-//    if (stream.fail()) {
-//        throw path_error{"Could not read file"};
-//    }
-//    return buffer.str();
-//}
-//
+
+namespace grandrounds {
+
+namespace {
+
+// Read an entire file into a std::string.  Will throw if any failure occurs.
+// TODO: test
+std::string slurp(std::istream& stream)
+{
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
+    if (stream.fail()) {
+        throw path_error{"Could not read file"};
+    }
+    return buffer.str();
+}
+
 //// Read an entire file into a std::string.  Will throw if any failure occurs.
 //// TODO: test
 //std::string slurp(const std::filesystem::path& path)
@@ -85,9 +85,9 @@
 //    // using group_by or something
 //    return out;
 //}
-//
-//}  // namespace
-//
+
+}  // namespace
+
 //nonogram_puzzle::nonogram_puzzle(std::string_view name)
 //{
 //    const auto puzzle_dir{find_puzzles_dir()};
@@ -147,5 +147,5 @@
 //                            })};
 //    return r::equal(board_filled_cells, game.puzzle->solution);
 //}
-//
-//}  // namespace grandrounds
+
+}  // namespace grandrounds
