@@ -5,22 +5,15 @@ find_package(nlohmann_json REQUIRED)
 find_package(lodepng REQUIRED)
 #find_package(range-v3 REQUIRED)
 
-add_executable(grandrounds main.cpp "grid.hpp" "range.hpp" "nonogram.hpp" "nonogram.cpp" "nonogram_ftxui.cpp" "file.hpp" "file.cpp")
+add_executable(grandrounds main.cpp)
 target_link_libraries(
   grandrounds
   PRIVATE project_options
-  project_warnings
-  fmt::fmt
-  lodepng::lodepng
-  Microsoft.GSL::GSL
-  nlohmann_json::nlohmann_json)
+  project_warnings)
 
 target_link_system_libraries(
   grandrounds
   PRIVATE
-  ftxui::screen
-  ftxui::dom
-  ftxui::component
   range-v3::range-v3)
 
 target_include_directories(grandrounds PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
