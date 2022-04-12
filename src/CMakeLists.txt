@@ -14,6 +14,9 @@ target_link_libraries(
 target_link_system_libraries(
   grandrounds
   PRIVATE
+  ftxui::screen
+  ftxui::dom
+  ftxui::component
   range-v3::range-v3)
 
 target_include_directories(grandrounds PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
