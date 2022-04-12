@@ -88,64 +88,64 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 
 }  // namespace
 
-//nonogram_puzzle::nonogram_puzzle(std::string_view name)
-//{
-//    const auto puzzle_dir{find_puzzles_dir()};
-//    const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
-//    const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
-//    const auto photo_path{puzzle_dir / fmt::format("{}_photo.png", name)};
-//    const auto small_path{puzzle_dir / fmt::format("{}_small.png", name)};
-//    auto solution_image{load_image(nonogram_path)};
-//    auto photo_image{load_image(photo_path)};
-//    auto small_image{load_image(small_path)};
-//
-//    dimensions.x = gsl::narrow<int>(solution_image.width);
-//    dimensions.y = gsl::narrow<int>(solution_image.height);
-//    photo_dimensions.x = gsl::narrow<int>(photo_image.width);
-//    photo_dimensions.y = gsl::narrow<int>(photo_image.height);
-//    // Split image data into four-byte (RGBA) chunks and convert those to board
-//    // cells
-//    solution = solution_image.rgba_pixel_data | rv::chunk(4) |
-//               rv::transform([](auto&& pixel) {
-//                   const bool filled{(pixel[0] == 0) && (pixel[1] == 0) &&
-//                                     (pixel[2] == 0)};
-//                   return filled ? board_cell::filled : board_cell::clear;
-//               }) |
-//               r::to<std::vector>;
-//
-//    photo = photo_image;
-//    small_photo = small_image;
-//
-//    data = load_puzzle_data(json_path);
-//
-//    const auto cols{grid_cols(solution, dimensions.x)};
-//    col_hints =
-//        cols |
-//        rv::transform([&](const auto& col) { return calculate_hints(col); }) |
-//        r::to<std::vector>;
-//
-//    const auto rows{grid_rows(solution, dimensions.x)};
-//    row_hints =
-//        rows |
-//        rv::transform([&](const auto& row) { return calculate_hints(row); }) |
-//        r::to<std::vector>;
-//
-//    const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
-//        return static_cast<int>(vec.size());
-//    }};
-//    row_hints_max = r::max(row_hints | rv::transform(vec_size));
-//    col_hints_max = r::max(col_hints | rv::transform(vec_size));
-//}
-//
-//bool check_solution(const nonogram_game& game) noexcept
-//{
-//    // Filter out "marked" cells so we can compare directly with the solution.
-//    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
-//                                return cell == board_cell::filled
-//                                           ? board_cell::filled
-//                                           : board_cell::clear;
-//                            })};
-//    return r::equal(board_filled_cells, game.puzzle->solution);
-//}
+nonogram_puzzle::nonogram_puzzle(std::string_view name)
+{
+    const auto puzzle_dir{find_puzzles_dir()};
+    const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
+    const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
+    const auto photo_path{puzzle_dir / fmt::format("{}_photo.png", name)};
+    const auto small_path{puzzle_dir / fmt::format("{}_small.png", name)};
+    auto solution_image{load_image(nonogram_path)};
+    auto photo_image{load_image(photo_path)};
+    auto small_image{load_image(small_path)};
+
+    dimensions.x = gsl::narrow<int>(solution_image.width);
+    dimensions.y = gsl::narrow<int>(solution_image.height);
+    photo_dimensions.x = gsl::narrow<int>(photo_image.width);
+    photo_dimensions.y = gsl::narrow<int>(photo_image.height);
+    // Split image data into four-byte (RGBA) chunks and convert those to board
+    // cells
+    solution = solution_image.rgba_pixel_data | rv::chunk(4) |
+               rv::transform([](auto&& pixel) {
+                   const bool filled{(pixel[0] == 0) && (pixel[1] == 0) &&
+                                     (pixel[2] == 0)};
+                   return filled ? board_cell::filled : board_cell::clear;
+               }) |
+               r::to<std::vector>;
+
+    photo = photo_image;
+    small_photo = small_image;
+
+    data = load_puzzle_data(json_path);
+
+    const auto cols{grid_cols(solution, dimensions.x)};
+    col_hints =
+        cols |
+        rv::transform([&](const auto& col) { return calculate_hints(col); }) |
+        r::to<std::vector>;
+
+    const auto rows{grid_rows(solution, dimensions.x)};
+    row_hints =
+        rows |
+        rv::transform([&](const auto& row) { return calculate_hints(row); }) |
+        r::to<std::vector>;
+
+    const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
+        return static_cast<int>(vec.size());
+    }};
+    row_hints_max = r::max(row_hints | rv::transform(vec_size));
+    col_hints_max = r::max(col_hints | rv::transform(vec_size));
+}
+
+bool check_solution(const nonogram_game& game) noexcept
+{
+    // Filter out "marked" cells so we can compare directly with the solution.
+    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
+                                return cell == board_cell::filled
+                                           ? board_cell::filled
+                                           : board_cell::clear;
+                            })};
+    return r::equal(board_filled_cells, game.puzzle->solution);
+}
 
 }  // namespace grandrounds
