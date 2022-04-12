@@ -5,30 +5,6 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "file.hpp"
-#include "grid.hpp"
-#include "nonogram.hpp"
-#include "nonogram_ftxui.hpp"
-
-#include <fmt/format.h>
-#include <ftxui/component/captured_mouse.hpp>      // for ftxui
-#include <ftxui/component/component.hpp>           // for Slider
-#include <ftxui/component/screen_interactive.hpp>  // for ScreenInteractive
-
-#include <gsl/narrow>
-
-#include <algorithm>
-#include <array>
-#include <cstdint>
-#include <filesystem>
-#include <functional>
-#include <string_view>
-#include <vector>
-
-// This file will be generated automatically when you run the CMake
-// configuration step. It creates a namespace called `grandrounds`. You can
-// modify the source template at `configured_files/config.hpp.in`.
-#include <internal_use_only/config.hpp>
 
 //namespace grandrounds {
 //
