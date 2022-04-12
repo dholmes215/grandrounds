@@ -9,7 +9,11 @@ add_executable(grandrounds main.cpp)
 target_link_libraries(
   grandrounds
   PRIVATE project_options
-  project_warnings)
+  project_warnings
+  fmt::fmt
+  lodepng::lodepng
+  Microsoft.GSL::GSL
+  nlohmann_json::nlohmann_json)
 
 target_link_system_libraries(
   grandrounds
