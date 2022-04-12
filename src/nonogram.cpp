@@ -118,23 +118,23 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
 
     data = load_puzzle_data(json_path);
 
-    const auto cols{grid_cols(solution, dimensions.x)};
-    col_hints =
-        cols |
-        rv::transform([&](const auto& col) { return calculate_hints(col); }) |
-        r::to<std::vector>;
+    //const auto cols{grid_cols(solution, dimensions.x)};
+    //col_hints =
+    //    cols |
+    //    rv::transform([&](const auto& col) { return calculate_hints(col); }) |
+    //    r::to<std::vector>;
 
-    const auto rows{grid_rows(solution, dimensions.x)};
-    row_hints =
-        rows |
-        rv::transform([&](const auto& row) { return calculate_hints(row); }) |
-        r::to<std::vector>;
+    //const auto rows{grid_rows(solution, dimensions.x)};
+    //row_hints =
+    //    rows |
+    //    rv::transform([&](const auto& row) { return calculate_hints(row); }) |
+    //    r::to<std::vector>;
 
-    const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
-        return static_cast<int>(vec.size());
-    }};
-    row_hints_max = r::max(row_hints | rv::transform(vec_size));
-    col_hints_max = r::max(col_hints | rv::transform(vec_size));
+    //const auto vec_size{[](const std::vector<std::uint8_t>& vec) {
+    //    return static_cast<int>(vec.size());
+    //}};
+    //row_hints_max = r::max(row_hints | rv::transform(vec_size));
+    //col_hints_max = r::max(col_hints | rv::transform(vec_size));
 }
 
 bool check_solution(const nonogram_game& game) noexcept
