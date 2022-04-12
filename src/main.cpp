@@ -9,7 +9,6 @@
 #include "grid.hpp"
 #include "nonogram.hpp"
 #include "nonogram_ftxui.hpp"
-#include "range.hpp"
 
 #include <fmt/format.h>
 #include <ftxui/component/captured_mouse.hpp>      // for ftxui
