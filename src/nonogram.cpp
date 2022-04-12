@@ -105,13 +105,13 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     photo_dimensions.y = gsl::narrow<int>(photo_image.height);
     // Split image data into four-byte (RGBA) chunks and convert those to board
     // cells
-    solution = solution_image.rgba_pixel_data | rv::chunk(4) |
-               rv::transform([](auto&& pixel) {
-                   const bool filled{(pixel[0] == 0) && (pixel[1] == 0) &&
-                                     (pixel[2] == 0)};
-                   return filled ? board_cell::filled : board_cell::clear;
-               }) |
-               r::to<std::vector>;
+    //solution = solution_image.rgba_pixel_data | rv::chunk(4) |
+    //           rv::transform([](auto&& pixel) {
+    //               const bool filled{(pixel[0] == 0) && (pixel[1] == 0) &&
+    //                                 (pixel[2] == 0)};
+    //               return filled ? board_cell::filled : board_cell::clear;
+    //           }) |
+    //           r::to<std::vector>;
 
     //photo = photo_image;
     //small_photo = small_image;
