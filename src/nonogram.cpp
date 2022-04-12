@@ -99,10 +99,10 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     auto photo_image{load_image(photo_path)};
     auto small_image{load_image(small_path)};
 
-    dimensions.x = gsl::narrow<int>(solution_image.width);
-    dimensions.y = gsl::narrow<int>(solution_image.height);
-    photo_dimensions.x = gsl::narrow<int>(photo_image.width);
-    photo_dimensions.y = gsl::narrow<int>(photo_image.height);
+    //dimensions.x = gsl::narrow<int>(solution_image.width);
+    //dimensions.y = gsl::narrow<int>(solution_image.height);
+    //photo_dimensions.x = gsl::narrow<int>(photo_image.width);
+    //photo_dimensions.y = gsl::narrow<int>(photo_image.height);
     // Split image data into four-byte (RGBA) chunks and convert those to board
     // cells
     //solution = solution_image.rgba_pixel_data | rv::chunk(4) |
