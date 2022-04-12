@@ -63,28 +63,28 @@ puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
     return out;
 }
 
-//std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
-//{
-//    auto iter{row_or_column.begin()};
-//    const auto end{row_or_column.end()};
-//    std::vector<std::uint8_t> out;
-//    while (iter != end) {
-//        while (iter != end && *iter == board_cell::clear) {
-//            ++iter;
-//        }
-//        std::uint8_t count{0};
-//        while (iter != end && *iter == board_cell::filled) {
-//            ++count;
-//            ++iter;
-//        }
-//        if (count > 0) {
-//            out.push_back(count);
-//        }
-//    }
-//    // TODO there may be some marvelous way to replace all this with ranges,
-//    // using group_by or something
-//    return out;
-//}
+std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
+{
+    auto iter{row_or_column.begin()};
+    const auto end{row_or_column.end()};
+    std::vector<std::uint8_t> out;
+    while (iter != end) {
+        while (iter != end && *iter == board_cell::clear) {
+            ++iter;
+        }
+        std::uint8_t count{0};
+        while (iter != end && *iter == board_cell::filled) {
+            ++count;
+            ++iter;
+        }
+        if (count > 0) {
+            out.push_back(count);
+        }
+    }
+    // TODO there may be some marvelous way to replace all this with ranges,
+    // using group_by or something
+    return out;
+}
 
 }  // namespace
 
