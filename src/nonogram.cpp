@@ -113,10 +113,10 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
                }) |
                r::to<std::vector>;
 
-    photo = photo_image;
-    small_photo = small_image;
+    //photo = photo_image;
+    //small_photo = small_image;
 
-    data = load_puzzle_data(json_path);
+    //data = load_puzzle_data(json_path);
 
     //const auto cols{grid_cols(solution, dimensions.x)};
     //col_hints =
