@@ -88,8 +88,8 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 
 }  // namespace
 
-nonogram_puzzle::nonogram_puzzle(std::string_view /* name*/)
-{
+//nonogram_puzzle::nonogram_puzzle(std::string_view /* name*/)
+//{
     //const auto puzzle_dir{find_puzzles_dir()};
     //const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
     //const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
@@ -135,7 +135,7 @@ nonogram_puzzle::nonogram_puzzle(std::string_view /* name*/)
     //}};
     //row_hints_max = r::max(row_hints | rv::transform(vec_size));
     //col_hints_max = r::max(col_hints | rv::transform(vec_size));
-}
+//}
 
 bool check_solution(const nonogram_game& game) noexcept
 {
