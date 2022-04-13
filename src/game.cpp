@@ -105,6 +105,8 @@ void play_puzzle(ftxui::ScreenInteractive& screen, std::string_view name)
 
 }  // namespace
 
+// Suppress cppcheck because passing string_view by value is correct.
+// cppcheck-suppress passedByValue
 void play_puzzle(std::string_view name)
 {
     auto screen{ftxui::ScreenInteractive::TerminalOutput()};
