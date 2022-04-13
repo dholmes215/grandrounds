@@ -10,8 +10,13 @@
 #include <fmt/format.h>
 #include <gsl/narrow>
 
-#include <stdexcept>
 #include <span>
+#include <stdexcept>
+
+// This file will be generated automatically when you run the CMake
+// configuration step. It creates a namespace called `grandrounds`. You can
+// modify the source template at `configured_files/config.hpp.in`.
+#include <internal_use_only/config.hpp>
 
 int main(int argc, const char** argv)
 {
@@ -23,6 +28,9 @@ int main(int argc, const char** argv)
     Usage:
           grandrounds
           grandrounds puzzle <NAME>
+ Options:
+          -h --help     Show this screen.
+          --version     Show version.
 )";
         // XXX I removed docopt because the the current Conan+CMake build
         // intermittently fails to find it.  This is a workaround.
@@ -31,6 +39,10 @@ int main(int argc, const char** argv)
         }
         else if (argc == 3 && args[1] == std::string_view{"puzzle"}) {
             grandrounds::play_puzzle(args[2]);
+        }
+        else if (args[1] == std::string_view{"--version"}) {
+            fmt::print("{} {}", grandrounds::cmake::project_name,
+                       grandrounds::cmake::project_version);
         }
         else {
             fmt::print("{}", USAGE);
