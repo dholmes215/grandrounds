@@ -5,20 +5,20 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "file.hpp"
-
-#include <fmt/format.h>
-#include <lodepng.h>
-
-#include <gsl/narrow>
-
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <stdexcept>
-#include <vector>
-
-namespace grandrounds {
+//#include "file.hpp"
+//
+//#include <fmt/format.h>
+//#include <lodepng.h>
+//
+//#include <gsl/narrow>
+//
+//#include <filesystem>
+//#include <fstream>
+//#include <iostream>
+//#include <stdexcept>
+//#include <vector>
+//
+//namespace grandrounds {
 
 //path_error::path_error(const std::string& message) : std::runtime_error(message)
 //{
@@ -55,4 +55,4 @@ namespace grandrounds {
 //    return out;
 //}
 
-}  // namespace grandrounds
+//}  // namespace grandrounds
