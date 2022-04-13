@@ -22,7 +22,7 @@
 
 namespace grandrounds {
 
-namespace {
+//namespace {
 
 //// Read an entire file into a std::string.  Will throw if any failure occurs.
 //// TODO: test
@@ -63,30 +63,30 @@ namespace {
 //    return out;
 //}
 
-std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
-{
-    auto iter{row_or_column.begin()};
-    const auto end{row_or_column.end()};
-    std::vector<std::uint8_t> out;
-    while (iter != end) {
-        while (iter != end && *iter == board_cell::clear) {
-            ++iter;
-        }
-        std::uint8_t count{0};
-        while (iter != end && *iter == board_cell::filled) {
-            ++count;
-            ++iter;
-        }
-        if (count > 0) {
-            out.push_back(count);
-        }
-    }
-    // TODO there may be some marvelous way to replace all this with ranges,
-    // using group_by or something
-    return out;
-}
-
-}  // namespace
+//std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
+//{
+//    auto iter{row_or_column.begin()};
+//    const auto end{row_or_column.end()};
+//    std::vector<std::uint8_t> out;
+//    while (iter != end) {
+//        while (iter != end && *iter == board_cell::clear) {
+//            ++iter;
+//        }
+//        std::uint8_t count{0};
+//        while (iter != end && *iter == board_cell::filled) {
+//            ++count;
+//            ++iter;
+//        }
+//        if (count > 0) {
+//            out.push_back(count);
+//        }
+//    }
+//    // TODO there may be some marvelous way to replace all this with ranges,
+//    // using group_by or something
+//    return out;
+//}
+//
+//}  // namespace
 
 //nonogram_puzzle::nonogram_puzzle(std::string_view /* name*/)
 //{
@@ -137,15 +137,15 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
     //col_hints_max = r::max(col_hints | rv::transform(vec_size));
 //}
 
-bool check_solution(const nonogram_game& game) noexcept
-{
-    // Filter out "marked" cells so we can compare directly with the solution.
-    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
-                                return cell == board_cell::filled
-                                           ? board_cell::filled
-                                           : board_cell::clear;
-                            })};
-    return r::equal(board_filled_cells, game.puzzle->solution);
-}
+//bool check_solution(const nonogram_game& game) noexcept
+//{
+//    // Filter out "marked" cells so we can compare directly with the solution.
+//    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
+//                                return cell == board_cell::filled
+//                                           ? board_cell::filled
+//                                           : board_cell::clear;
+//                            })};
+//    return r::equal(board_filled_cells, game.puzzle->solution);
+//}
 
 }  // namespace grandrounds
