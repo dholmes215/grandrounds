@@ -24,44 +24,44 @@ namespace grandrounds {
 
 namespace {
 
-// Read an entire file into a std::string.  Will throw if any failure occurs.
-// TODO: test
-std::string slurp(std::istream& stream)
-{
-    std::stringstream buffer;
-    buffer << stream.rdbuf();
-    if (stream.fail()) {
-        throw path_error{"Could not read file"};
-    }
-    return buffer.str();
-}
-
-// Read an entire file into a std::string.  Will throw if any failure occurs.
-// TODO: test
-std::string slurp(const std::filesystem::path& path)
-{
-    std::ifstream stream{path};
-    if (!stream) {
-        throw path_error{"Could not open file: " + path.string()};
-    }
-    return slurp(stream);
-}
-
-puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
-{
-    const auto json_text{slurp(json_path)};
-    const auto parsed_json{nlohmann::json::parse(json_text)};
-
-    puzzle_data out;
-    out.title = parsed_json["title"];
-    out.description = parsed_json["description"];
-    out.author = parsed_json["author"];
-    out.date = parsed_json["date"];
-    out.license = parsed_json["license"];
-    out.wikipedia = parsed_json["wikipedia"];
-
-    return out;
-}
+//// Read an entire file into a std::string.  Will throw if any failure occurs.
+//// TODO: test
+//std::string slurp(std::istream& stream)
+//{
+//    std::stringstream buffer;
+//    buffer << stream.rdbuf();
+//    if (stream.fail()) {
+//        throw path_error{"Could not read file"};
+//    }
+//    return buffer.str();
+//}
+//
+//// Read an entire file into a std::string.  Will throw if any failure occurs.
+//// TODO: test
+//std::string slurp(const std::filesystem::path& path)
+//{
+//    std::ifstream stream{path};
+//    if (!stream) {
+//        throw path_error{"Could not open file: " + path.string()};
+//    }
+//    return slurp(stream);
+//}
+//
+//puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
+//{
+//    const auto json_text{slurp(json_path)};
+//    const auto parsed_json{nlohmann::json::parse(json_text)};
+//
+//    puzzle_data out;
+//    out.title = parsed_json["title"];
+//    out.description = parsed_json["description"];
+//    out.author = parsed_json["author"];
+//    out.date = parsed_json["date"];
+//    out.license = parsed_json["license"];
+//    out.wikipedia = parsed_json["wikipedia"];
+//
+//    return out;
+//}
 
 std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 {
@@ -88,7 +88,7 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 
 }  // namespace
 
-nonogram_puzzle::nonogram_puzzle(std::string_view name)
+nonogram_puzzle::nonogram_puzzle(std::string_view /* name*/)
 {
     //const auto puzzle_dir{find_puzzles_dir()};
     //const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
