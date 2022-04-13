@@ -137,15 +137,15 @@ namespace grandrounds {
     //col_hints_max = r::max(col_hints | rv::transform(vec_size));
 //}
 
-//bool check_solution(const nonogram_game& game) noexcept
-//{
-//    // Filter out "marked" cells so we can compare directly with the solution.
-//    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
-//                                return cell == board_cell::filled
-//                                           ? board_cell::filled
-//                                           : board_cell::clear;
-//                            })};
-//    return r::equal(board_filled_cells, game.puzzle->solution);
-//}
+bool check_solution(const nonogram_game& game) noexcept
+{
+    // Filter out "marked" cells so we can compare directly with the solution.
+    auto board_filled_cells{game.board | rv::transform([](auto&& cell) {
+                                return cell == board_cell::filled
+                                           ? board_cell::filled
+                                           : board_cell::clear;
+                            })};
+    return r::equal(board_filled_cells, game.puzzle->solution);
+}
 
 }  // namespace grandrounds
