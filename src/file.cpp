@@ -42,17 +42,17 @@ std::filesystem::path find_puzzles_dir()
     return std::filesystem::canonical(path / "puzzles");
 }
 
-loaded_image load_image(const std::filesystem::path& nonogram_png_path)
-{
-    loaded_image out;
-    const auto error{lodepng::decode(out.rgba_pixel_data, out.width, out.height,
-                                     nonogram_png_path.string())};
-    if (error != 0) {
-        throw file_error{fmt::format("Could not load {}: {} {}",
-                                     nonogram_png_path.string(), error,
-                                     lodepng_error_text(error))};
-    }
-    return out;
-}
+//loaded_image load_image(const std::filesystem::path& nonogram_png_path)
+//{
+//    loaded_image out;
+//    const auto error{lodepng::decode(out.rgba_pixel_data, out.width, out.height,
+//                                     nonogram_png_path.string())};
+//    if (error != 0) {
+//        throw file_error{fmt::format("Could not load {}: {} {}",
+//                                     nonogram_png_path.string(), error,
+//                                     lodepng_error_text(error))};
+//    }
+//    return out;
+//}
 
 }  // namespace grandrounds
