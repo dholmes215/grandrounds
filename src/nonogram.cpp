@@ -90,14 +90,14 @@ std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 
 nonogram_puzzle::nonogram_puzzle(std::string_view name)
 {
-    const auto puzzle_dir{find_puzzles_dir()};
-    const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
-    const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
-    const auto photo_path{puzzle_dir / fmt::format("{}_photo.png", name)};
-    const auto small_path{puzzle_dir / fmt::format("{}_small.png", name)};
-    auto solution_image{load_image(nonogram_path)};
-    auto photo_image{load_image(photo_path)};
-    auto small_image{load_image(small_path)};
+    //const auto puzzle_dir{find_puzzles_dir()};
+    //const auto json_path{puzzle_dir / fmt::format("{}_data.json", name)};
+    //const auto nonogram_path{puzzle_dir / fmt::format("{}_nonogram.png", name)};
+    //const auto photo_path{puzzle_dir / fmt::format("{}_photo.png", name)};
+    //const auto small_path{puzzle_dir / fmt::format("{}_small.png", name)};
+    //auto solution_image{load_image(nonogram_path)};
+    //auto photo_image{load_image(photo_path)};
+    //auto small_image{load_image(small_path)};
 
     //dimensions.x = gsl::narrow<int>(solution_image.width);
     //dimensions.y = gsl::narrow<int>(solution_image.height);
