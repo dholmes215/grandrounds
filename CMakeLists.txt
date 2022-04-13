@@ -137,17 +137,15 @@ add_subdirectory(configured_files)
 # Adding the src:
 add_subdirectory(src)
 
-# Tests are all disabled until I implement some and also figure out why they're failing
-# TODO: Implement tests
-## Adding the tests:
-#option(ENABLE_TESTING "Enable the tests" ON)
-#if(ENABLE_TESTING)
-#  enable_testing()
-#  message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
-#testing")
-#  add_subdirectory(test)
-#endif()
-#
+# Adding the tests:
+option(ENABLE_TESTING "Enable the tests" ON)
+if(ENABLE_TESTING)
+  enable_testing()
+  message("Building Tests. Be sure to check out test/constexpr_tests for constexpr
+testing")
+  add_subdirectory(test)
+endif()
+
 #option(ENABLE_FUZZING "Enable the fuzz tests" OFF)
 #if(ENABLE_FUZZING)
 #  message("Building Fuzz Tests, using fuzzing sanitizer https://www.llvm.org/docs/LibFuzzer.html")
