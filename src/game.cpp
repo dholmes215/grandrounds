@@ -160,6 +160,8 @@ void play_game()
 
     screen.Loop(renderer);
 
+    // This is a cppcheck false positive
+    // cppcheck-suppress knownConditionTrueFalse
     if (start_clicked) {
         play_puzzles(screen);
     }
