@@ -8,12 +8,7 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
-#include <lodepng.h>
-#include <gsl/narrow>
-
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <stdexcept>
 
 namespace grandrounds {

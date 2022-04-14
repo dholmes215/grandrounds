@@ -47,22 +47,6 @@ std::string slurp(const std::filesystem::path& path)
     return slurp(stream);
 }
 
-puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
-{
-    const auto json_text{slurp(json_path)};
-    const auto parsed_json{nlohmann::json::parse(json_text)};
-
-    puzzle_data out;
-    out.title = parsed_json["title"];
-    out.description = parsed_json["description"];
-    out.author = parsed_json["author"];
-    out.date = parsed_json["date"];
-    out.license = parsed_json["license"];
-    out.wikipedia = parsed_json["wikipedia"];
-
-    return out;
-}
-
 std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 {
     auto iter{row_or_column.begin()};
@@ -135,6 +119,28 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     }};
     row_hints_max = r::max(row_hints | rv::transform(vec_size));
     col_hints_max = r::max(col_hints | rv::transform(vec_size));
+}
+
+// Suppress cppcheck because passing string_view by value is correct.
+// cppcheck-suppress passedByValue
+puzzle_data parse_puzzle_data(std::string_view json_text)
+{
+    const auto parsed_json{nlohmann::json::parse(json_text)};
+
+    puzzle_data out;
+    out.title = parsed_json["title"];
+    out.description = parsed_json["description"];
+    out.author = parsed_json["author"];
+    out.date = parsed_json["date"];
+    out.license = parsed_json["license"];
+    out.wikipedia = parsed_json["wikipedia"];
+
+    return out;
+}
+
+puzzle_data load_puzzle_data(const std::filesystem::path& json_path)
+{
+    return parse_puzzle_data(slurp(json_path));
 }
 
 bool check_solution(const nonogram_game& game) noexcept

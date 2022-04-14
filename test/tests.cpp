@@ -5,17 +5,30 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#include "nonogram.hpp"
+
 #include <catch2/catch.hpp>
 
-unsigned int Factorial(unsigned int number)// NOLINT(misc-no-recursion)
+TEST_CASE("Parse puzzle data from string", "[puzzle_data]")
 {
-  return number <= 1 ? number : Factorial(number - 1) * number;
-}
-
-TEST_CASE("Factorials are computed", "[factorial]")
-{
-  REQUIRE(Factorial(1) == 1);
-  REQUIRE(Factorial(2) == 2);
-  REQUIRE(Factorial(3) == 6);
-  REQUIRE(Factorial(10) == 3628800);
+    static constexpr auto json =
+        R"({
+  "title": "Cottontail on the Trail",
+  "description": "This bronze bunny sculpture struct me as very strange when it first appeared suddenly in 2002, but seeing local children playing on it every Easter quickly warmed me to it.",
+  "author": "David Holmes",
+  "date": "2022",
+  "license": "Public Domain",
+  "wikipedia": "https://en.wikipedia.org/wiki/Cottontail_on_the_Trail"
+})";
+	
+    grandrounds::puzzle_data data{grandrounds::parse_puzzle_data(json)};
+    REQUIRE(data.title == "Cottontail on the Trail");
+    REQUIRE(data.description ==
+            "This bronze bunny sculpture struct me as very strange when it "
+            "first appeared suddenly in 2002, but seeing local children "
+            "playing on it every Easter quickly warmed me to it.");
+	REQUIRE(data.author == "David Holmes");
+	REQUIRE(data.date == "2022");
+	REQUIRE(data.license == "Public Domain");
+	REQUIRE(data.wikipedia == "https://en.wikipedia.org/wiki/Cottontail_on_the_Trail");
 }

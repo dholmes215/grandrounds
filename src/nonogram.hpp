@@ -81,6 +81,8 @@ struct nonogram_game {
     std::vector<board_cell> board;
 };
 
+puzzle_data parse_puzzle_data(std::string_view json_text);
+puzzle_data load_puzzle_data(const std::filesystem::path& json_path);
 bool check_solution(const nonogram_game& game) noexcept;
 
 }  // namespace grandrounds
