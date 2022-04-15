@@ -123,7 +123,7 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
 
 class json_error : public std::runtime_error {
    public:
-    json_error(const std::string& msg) : std::runtime_error{msg} {}
+    explicit json_error(const std::string& msg) : std::runtime_error{msg} {}
 };
 
 // Suppress cppcheck because passing string_view by value is correct.
