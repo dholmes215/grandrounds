@@ -121,11 +121,22 @@ nonogram_puzzle::nonogram_puzzle(std::string_view name)
     col_hints_max = r::max(col_hints | rv::transform(vec_size));
 }
 
+class json_error : public std::runtime_error {
+   public:
+    json_error(const std::string& msg) : std::runtime_error{msg} {}
+};
+
 // Suppress cppcheck because passing string_view by value is correct.
 // cppcheck-suppress passedByValue
 puzzle_data parse_puzzle_data(std::string_view json_text)
 {
-    const auto parsed_json{nlohmann::json::parse(json_text)};
+    const auto parsed_json = nlohmann::json::parse(json_text);
+
+    if (!parsed_json.is_object()) {
+        throw json_error{
+            fmt::format("Parsed JSON is unexpectedly a {} instead of an object",
+                        parsed_json.type_name())};
+    }
 
     puzzle_data out;
     out.title = parsed_json["title"];
