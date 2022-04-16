@@ -8,5 +8,3 @@ nlohmann_json/3.10.5
 
 [generators]
 cmake_find_package_multi
-CMakeDeps
-CMakeToolchain
