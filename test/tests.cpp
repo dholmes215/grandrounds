@@ -7,6 +7,7 @@
 
 #include "nonogram.hpp"
 
+#define CATCH_CONFIG_NO_WINDOWS_SEH
 #include <catch2/catch.hpp>
 
 TEST_CASE("Parse puzzle data from string", "[puzzle_data]")

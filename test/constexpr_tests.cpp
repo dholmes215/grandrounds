@@ -5,6 +5,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#define CATCH_CONFIG_NO_WINDOWS_SEH
 #include <catch2/catch.hpp>
 
 constexpr unsigned int Factorial(unsigned int number)// NOLINT(misc-no-recursion)
