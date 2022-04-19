@@ -9,7 +9,6 @@
 #define RANGE_HPP
 
 // Range-v3 has some headers that generate warnings in MSVC.
-// TODO: Document in more detail
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4242)

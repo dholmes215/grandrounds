@@ -8,6 +8,7 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
+#include <cstdint>
 #include <filesystem>
 #include <stdexcept>
 #include <vector>
@@ -29,6 +30,9 @@ struct loaded_image {
     unsigned int width{};
     unsigned int height{};
 };
+
+// Read an entire file into a std::string.  Will throw if any failure occurs.
+std::string slurp(const std::filesystem::path& path);
 
 // Auto-detect the directory containing puzzle files.
 std::filesystem::path find_puzzles_dir();

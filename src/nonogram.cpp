@@ -24,29 +24,6 @@ namespace grandrounds {
 
 namespace {
 
-// Read an entire file into a std::string.  Will throw if any failure occurs.
-// TODO: test
-std::string slurp(std::istream& stream)
-{
-    std::stringstream buffer;
-    buffer << stream.rdbuf();
-    if (stream.fail()) {
-        throw path_error{"Could not read file"};
-    }
-    return buffer.str();
-}
-
-// Read an entire file into a std::string.  Will throw if any failure occurs.
-// TODO: test
-std::string slurp(const std::filesystem::path& path)
-{
-    std::ifstream stream{path};
-    if (!stream) {
-        throw path_error{"Could not open file: " + path.string()};
-    }
-    return slurp(stream);
-}
-
 std::vector<std::uint8_t> calculate_hints(const auto& row_or_column)
 {
     auto iter{row_or_column.begin()};

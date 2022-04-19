@@ -10,8 +10,6 @@
 #include <fmt/format.h>
 #include <lodepng.h>
 
-#include <gsl/narrow>
-
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -26,6 +24,27 @@ path_error::path_error(const std::string& message) : std::runtime_error(message)
 
 file_error::file_error(const std::string& message) : std::runtime_error(message)
 {
+}
+
+// Read an entire file into a std::string.  Will throw if any failure occurs.
+std::string slurp(std::istream& stream)
+{
+    std::stringstream buffer;
+    buffer << stream.rdbuf();
+    if (stream.fail()) {
+        throw path_error{"Could not read file"};
+    }
+    return buffer.str();
+}
+
+// Read an entire file into a std::string.  Will throw if any failure occurs.
+std::string slurp(const std::filesystem::path& path)
+{
+    std::ifstream stream{path};
+    if (!stream) {
+        throw path_error{"Could not open file: " + path.string()};
+    }
+    return slurp(stream);
 }
 
 // Auto-detect the directory containing puzzle files.
