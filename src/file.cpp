@@ -32,7 +32,7 @@ std::string slurp(std::istream& stream)
     std::stringstream buffer;
     buffer << stream.rdbuf();
     if (stream.fail()) {
-        throw path_error{"Could not read file"};
+        throw file_error{"Could not read file"};
     }
     return buffer.str();
 }
