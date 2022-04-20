@@ -8,6 +8,8 @@
 #include "file.hpp"
 #include "nonogram.hpp"
 
+#include <gsl/narrow>
+
 #include <cstring>
 #include <sstream>
 
@@ -49,7 +51,7 @@ TEST_CASE("Read an entire istream into a string", "[file]")
     static constexpr auto empty{""};
     std::stringstream ss_empty{empty};
     REQUIRE(grandrounds::slurp(ss_empty) == empty);
-    REQUIRE(ss_empty.tellg() == std::strlen(empty));
+    REQUIRE(gsl::narrow<std::size_t>(ss_empty.tellg()) == std::strlen(empty));
     REQUIRE(!ss_empty.fail());
 
     static constexpr auto lorem{
@@ -63,6 +65,6 @@ proident, sunt in culpa qui officia deserunt mollit anim id est
 laborum.)"};
     std::stringstream ss_lorem{lorem};
     REQUIRE(grandrounds::slurp(ss_lorem) == lorem);
-    REQUIRE(ss_lorem.tellg() == std::strlen(lorem));
+    REQUIRE(gsl::narrow<std::size_t>(ss_lorem.tellg()) == std::strlen(lorem));
     REQUIRE(!ss_lorem.fail());
 }
