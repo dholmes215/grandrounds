@@ -58,9 +58,9 @@ FetchContent_Declare(_project_options
 FetchContent_MakeAvailable(_project_options)
 include(${_project_options_SOURCE_DIR}/Index.cmake)
 
-# uncomment to enable vcpkg:
-# # Setup vcpkg - should be called before defining project()
-# run_vcpkg()
+# Configure vcpkg (requires vcpkg submodule)
+include(cmake/ConfigureVcpkg.cmake)
+configure_vcpkg("${CMAKE_CURRENT_LIST_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
 # Set the project name and language
 project(
