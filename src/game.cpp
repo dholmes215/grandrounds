@@ -107,7 +107,7 @@ void play_puzzle(ftxui::ScreenInteractive& screen, std::string_view name)
 // cppcheck-suppress passedByValue
 void play_puzzle(std::string_view name)
 {
-    auto screen{ftxui::ScreenInteractive::TerminalOutput()};
+    auto screen{ftxui::ScreenInteractive::Fullscreen()};
     play_puzzle(screen, name);
 }
 
@@ -124,7 +124,7 @@ loaded_image load_title_image()
 
 void play_game()
 {
-    auto screen{ftxui::ScreenInteractive::TerminalOutput()};
+    auto screen{ftxui::ScreenInteractive::Fullscreen()};
     ftxui::Canvas canvas{160, 96};  // NOLINT magic number to fit terminal
     auto title_image{load_title_image()};
     draw_photo_on_canvas(canvas, title_image, {0, 0});
