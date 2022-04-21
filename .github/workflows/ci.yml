@@ -101,6 +101,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
       - name: Setup Cache
         uses: ./.github/actions/setup_cache
