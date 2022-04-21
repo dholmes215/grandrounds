@@ -65,7 +65,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 # Set the project name and language
 project(
   grandrounds
-  VERSION 0.0.1
+  VERSION 0.2.0
   DESCRIPTION ""
   HOMEPAGE_URL "https://github.com/dholmes215/grandrounds"
   LANGUAGES CXX C)
