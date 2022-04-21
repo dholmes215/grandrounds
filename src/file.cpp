@@ -51,15 +51,16 @@ std::string slurp(const std::filesystem::path& path)
 // Auto-detect the directory containing puzzle files.
 std::filesystem::path find_puzzles_dir()
 {
-    auto path = std::filesystem::current_path();
-    while (!std::filesystem::exists(path / "puzzles")) {
+    namespace fs = std::filesystem;
+    auto path = fs::current_path();
+    while (!fs::exists(path / "share" / "grandrounds" / "puzzles")) {
         auto last_path_size = path.string().size();
         path = path.parent_path();
         if (path.string().size() >= last_path_size) {
             throw grandrounds::path_error("Could not locate puzzles directory");
         }
     }
-    return std::filesystem::canonical(path / "puzzles");
+    return fs::canonical(path / "share" / "grandrounds" / "puzzles");
 }
 
 loaded_image load_image(const std::filesystem::path& nonogram_png_path)

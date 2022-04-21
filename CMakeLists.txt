@@ -164,6 +164,7 @@ set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT grandrounds)
 
 # Add other targets that you want installed here, be default we just package the one executable
 # we know we want to ship
+install(DIRECTORY share/grandrounds DESTINATION share)
 package_project(TARGETS grandrounds)
 
 # Experience shows that explicit package naming can help make it easier to sort
