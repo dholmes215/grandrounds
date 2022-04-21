@@ -1,7 +1,9 @@
-# Disabled lines are fetched via FetchContent instead of Conan and do not need find_package
-find_package(fmt REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(lodepng REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(ftxui CONFIG REQUIRED)
+find_package(lodepng CONFIG REQUIRED)
+find_package(Microsoft.GSL CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(range-v3 CONFIG REQUIRED)
 
 # Game library
 add_library(game_library game.cpp game.hpp grid.hpp range.hpp nonogram.hpp nonogram.cpp nonogram_ftxui.cpp file.hpp file.cpp)
@@ -12,7 +14,7 @@ target_link_libraries(
 	project_options
 	project_warnings
 	fmt::fmt
-	lodepng::lodepng
+	lodepng
 	Microsoft.GSL::GSL
 	nlohmann_json::nlohmann_json)
 

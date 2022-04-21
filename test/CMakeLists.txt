@@ -1,4 +1,5 @@
-find_package(Catch2 REQUIRED)
+find_package(Catch2 CONFIG REQUIRED)
+find_package(Microsoft.GSL CONFIG REQUIRED)
 
 include(CTest)
 include(Catch)

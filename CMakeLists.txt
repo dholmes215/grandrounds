@@ -12,33 +12,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
-FetchContent_Declare(ftxui
-  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-  GIT_TAG v2.0.0
-)
-
-FetchContent_GetProperties(ftxui)
-if(NOT ftxui_POPULATED)
-  FetchContent_Populate(ftxui)
-  add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
-
-# Using FetchContent for these is a workaround to an issue where there are
-# intermittent failures finding the packages when using Conan to install them
-# (and also to get the HEAD version of range-v3 for a bug-fix that isn't in 
-# the latest release)
-FetchContent_Declare(
-        Range-v3
-        GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
-        GIT_TAG "d800a032132512a54c291ce55a2a43e0460591c7"
-)
-FetchContent_Declare(
-        ms-gsl
-        GIT_REPOSITORY "https://github.com/microsoft/GSL"
-        GIT_TAG "a3534567187d2edc428efd3f13466ff75fe5805c"
-)
-
-FetchContent_MakeAvailable(Range-v3 ms-gsl)
 
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
